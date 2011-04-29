@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="utf-8"?>
+<views:ExampleViewBase xmlns:fx="http://ns.adobe.com/mxml/2009"
+        xmlns:s="library://ns.adobe.com/flex/spark"
+		xmlns:mx="library://ns.adobe.com/flex/mx"
+		xmlns:views="org.gestouch.examples.views.*"
+		xmlns:controls="org.gestouch.examples.controls.*"
+		title="LongPressGesture Examples"
+		>
+	
+	<fx:Script>
+		<![CDATA[
+			import spark.components.Button;
+			import spark.components.TextInput;
+
+			import com.greensock.TweenMax;
+			import com.greensock.plugins.GlowFilterPlugin;
+			import com.greensock.plugins.TweenPlugin;
+
+			import org.gestouch.events.LongPressGestureEvent;
+			import org.gestouch.examples.controls.EditableTextInput;
+			import org.gestouch.examples.model.ExamplesModel;
+			import org.gestouch.gestures.LongPressGesture;
+
+			import mx.controls.Alert;
+
+			import flash.display.DisplayObject;
+			import flash.events.FocusEvent;
+			import flash.events.MouseEvent;
+
+
+			override protected function init():void
+			{
+				TweenPlugin.activate([GlowFilterPlugin]);
+				
+				button1.addEventListener(LongPressGestureEvent.GESTURE_LONG_PRESS, button_gestureHoldHandler);
+				button2.addEventListener(LongPressGestureEvent.GESTURE_LONG_PRESS, button_gestureHoldHandler);
+				
+				label.addEventListener(LongPressGestureEvent.GESTURE_LONG_PRESS, label_gestureHoldHandler);
+				label.addEventListener(FocusEvent.FOCUS_OUT, label_focusOutHandler);
+				
+				label2.addEventListener(LongPressGestureEvent.GESTURE_LONG_PRESS, label_gestureHoldHandler);
+				label2.addEventListener(FocusEvent.FOCUS_OUT, label_focusOutHandler);
+			}
+			
+			
+			override protected function openHelp():void
+			{
+				Alert.show(ExamplesModel.LONG_PRESS_GESTURE_HELP);
+			}
+			
+			
+			override protected function onViewActivate():void
+			{
+				super.onViewActivate();
+				
+				LongPressGesture.add(button1);
+				LongPressGesture.add(button2);
+				LongPressGesture.add(label);
+				LongPressGesture.add(label2, {minTouchPointsCount: 2, maxTouchPointsCount: 2});
+			}
+			
+			
+			override protected function onViewDeactivate():void
+			{
+				super.onViewDeactivate();
+				
+				LongPressGesture.remove(button1);
+				LongPressGesture.remove(button2);
+				LongPressGesture.remove(label);
+				LongPressGesture.remove(label2);
+			}
+
+
+			private function button_gestureHoldHandler(event:LongPressGestureEvent):void
+			{
+				var button:Button = event.currentTarget as Button;
+				if (event.phase == GesturePhase.BEGIN)
+				{
+					TweenMax.fromTo(button, 1,
+						{glowFilter: {color: 0xEEEEEE * Math.random(), blurX: 16, blurY: 16, strength: 2, alpha: 1}},
+						{glowFilter: {alpha: 0, remove: true}
+					});
+				}
+			}
+
+
+			private function label_gestureHoldHandler(event:LongPressGestureEvent):void
+			{
+				var label:TextInput = event.currentTarget as TextInput;
+				if (event.phase == GesturePhase.BEGIN)
+				{
+					label.editable = !label.editable;
+					if (label.editable)
+					{
+						stage.focus = label;
+						label.text = "You can edit me now...";
+						stage.addEventListener(MouseEvent.MOUSE_DOWN, stage_mouseDownHandler, true);
+					}
+					else
+					{
+						if (label == this.label2)
+						{
+							label.text = "Hold me for two fingers to make editable";
+						}
+						else
+						{
+							label.text = "Hold me for to make editable";
+						}
+					}
+				}
+				else if (event.phase == GesturePhase.END)
+				{
+					TweenMax.to(label, 0.5, {scaleX: 2, scaleY: 2});
+				}
+			}
+
+
+			private function stage_mouseDownHandler(event:MouseEvent):void
+			{
+				if ((stage.focus == label || (stage.focus && label.contains(stage.focus))) && !label.contains(event.target as DisplayObject))
+				{
+					stage.focus = null;
+				}
+				if ((stage.focus == label2 || (stage.focus && label2.contains(stage.focus))) && !label2.contains(event.target as DisplayObject))
+				{
+					stage.focus = null;
+				}
+			}
+			
+			
+			private function label_focusOutHandler(event:FocusEvent):void
+			{
+				var label:EditableTextInput = event.currentTarget as EditableTextInput;
+				if (stage.focus != label && (!stage.focus || !label.contains(stage.focus)))				
+				{
+					stage.removeEventListener(MouseEvent.MOUSE_DOWN, stage_mouseDownHandler, true);
+					label.editable = false;
+					if (label == this.label2)
+					{
+						label.text = "Hold me for two fingers to make editable";
+					}
+					else
+					{
+						label.text = "Hold me for to make editable";
+					}
+					
+					TweenMax.to(label, 0.5, {scaleX: 1, scaleY: 1});
+				}
+			}
+		]]>
+	</fx:Script>
+	
+	<s:Scroller width="100%" height="100%">
+		<s:Group>
+			<s:layout>
+				<s:VerticalLayout/>
+			</s:layout>
+	
+			<controls:HintText text="Hold these controls for them to respond."/>		
+			<s:Group top="10" left="10">
+				<s:layout>
+					<s:HorizontalLayout/>
+				</s:layout>
+				<s:Button id="button1" label="Hold me for a second"/>
+				<s:Button id="button2" label="Hold me for a second"/>
+			</s:Group>
+		
+			<controls:EditableTextInput id="label" text="Hold me for to make editable" editable="false"/>
+			
+			<mx:HRule width="100%" />
+		
+			<controls:HintText text="This is an example of multi-touch hold gesture for two fingers. Exactly the same gesture, just one extra configuration value."/>
+			<controls:EditableTextInput id="label2" text="Hold me for two fingers to make editable" editable="false"/>
+		</s:Group>
+	</s:Scroller>
+</views:ExampleViewBase>

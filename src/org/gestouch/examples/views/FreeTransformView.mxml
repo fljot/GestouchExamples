@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="utf-8"?>
+<views:ExampleViewBase xmlns:fx="http://ns.adobe.com/mxml/2009"
+        xmlns:s="library://ns.adobe.com/flex/spark"
+		xmlns:mx="library://ns.adobe.com/flex/mx"
+		xmlns:views="org.gestouch.examples.views.*"
+		xmlns:controls="org.gestouch.examples.controls.*"
+		title="Free-transform Examples: DragGesture, ZoomGesture, RotateGesture"
+		>
+	
+	<fx:Script>
+		<![CDATA[
+			import com.greensock.TweenMax;
+			import org.gestouch.GestureUtils;
+			import org.gestouch.events.DragGestureEvent;
+			import org.gestouch.events.RotateGestureEvent;
+			import org.gestouch.events.ZoomGestureEvent;
+			import org.gestouch.gestures.DragGesture;
+			import org.gestouch.gestures.RotateGesture;
+			import org.gestouch.gestures.ZoomGesture;
+
+
+			private var dragGesture:DragGesture;
+			[Bindable]
+			private var zoomGesture:ZoomGesture;
+			private var rotateGesture:RotateGesture;
+
+
+			override protected function init():void
+			{
+				// normally you could use Greensock's TransformArounCenterPlugin
+				// but it's not open-source, so I can't include it here
+//				TweenPlugin.activate([TransformAroundCenterPlugin]);
+				
+				image.addEventListener(RotateGestureEvent.GESTURE_ROTATE, image_gestureRotateHandler);
+				image.addEventListener(DragGestureEvent.GESTURE_DRAG, image_gestureDragHandler);
+				image.addEventListener(ZoomGestureEvent.GESTURE_ZOOM, image_gestureZoomHandler);
+				image.addEventListener(MouseEvent.MOUSE_DOWN, fadeInImage);
+				image.addEventListener(TouchEvent.TOUCH_BEGIN, fadeInImage);
+			}
+
+
+			private function fadeInImage(event:Event):void
+			{
+				image.alpha = 1;
+			}
+			
+			
+			override protected function onViewActivate():void
+			{
+				super.onViewActivate();
+				
+				updateDragGesture();
+				updateZoomGesture();
+				updateRotateGesture();
+			}
+			
+			
+			override protected function onViewDeactivate():void
+			{
+				super.onViewDeactivate();
+				
+				if (dragGesture)
+				{
+					dragGesture.dispose();
+					dragGesture = null;
+				}
+				if (zoomGesture)
+				{
+					zoomGesture.dispose();
+					zoomGesture = null;
+				}
+				if (rotateGesture)
+				{
+					rotateGesture.dispose();
+					rotateGesture = null;
+				}
+			}
+
+
+			private function image_gestureZoomHandler(event:TransformGestureEvent):void
+			{
+				var matrix:Matrix = image.transform.matrix;
+				var transformPoint:Point = matrix.transformPoint(new Point(event.localX, event.localY));
+				matrix.translate(-transformPoint.x, -transformPoint.y);
+				matrix.scale(event.scaleX, event.scaleY);
+				matrix.translate(transformPoint.x, transformPoint.y);
+				image.transform.matrix = matrix;
+				
+				if (event.phase == GesturePhase.END)
+				{
+					const MIN_SCALE:Number = 0.6;
+					if (image.scaleX < MIN_SCALE || image.scaleY < MIN_SCALE)
+					{
+						// normally you could use Greensock's TransformArounCenterPlugin
+						// but it's not open-source, so I can't include it here
+//						TweenMax.to(image, 0.3, {transformAroundCenter: {scale: MIN_SCALE}});
+						TweenMax.to(image, 0.3, {scaleX: MIN_SCALE, scaleY: MIN_SCALE});						
+					}
+				}
+			}
+
+
+			private function image_gestureRotateHandler(event:RotateGestureEvent):void
+			{
+				var matrix:Matrix = image.transform.matrix;
+				var transformPoint:Point = matrix.transformPoint(new Point(event.localX, event.localY));
+				matrix.translate(-transformPoint.x, -transformPoint.y);
+				matrix.rotate(event.rotation * GestureUtils.DEGREES_TO_RADIANS);
+				matrix.translate(transformPoint.x, transformPoint.y);
+				image.transform.matrix = matrix;
+			}
+			
+			
+			private function image_gestureDragHandler(event:DragGestureEvent):void
+			{
+				image.move(image.x + event.offsetX, image.y + event.offsetY);
+			}
+			
+			
+			private function reset():void
+			{
+				image.transform.matrix = new Matrix(1, 0, 0, 1, 60, 60);
+			}
+			
+			
+			
+			private function updateDragGesture():void
+			{
+				if (dragCheckBox.selected && !dragGesture)
+				{
+					dragGesture = DragGesture.add(image, {minTouchPointsCount: 1, maxTouchPointsCount: 2});
+				}
+				else if (!dragCheckBox.selected && dragGesture)
+				{
+					dragGesture.dispose();
+					dragGesture = null;
+				}
+			}
+			private function updateZoomGesture():void
+			{
+				if (zoomCheckBox.selected && !zoomGesture)
+				{
+					zoomGesture = ZoomGesture.add(image);
+				}
+				else if (!zoomCheckBox.selected && zoomGesture)
+				{
+					zoomGesture.dispose();
+					zoomGesture = null;
+				}
+				
+				if (zoomGesture)
+				{
+					zoomGesture.lockAspectRatio = ratioCheckBox.selected;
+				}
+			}
+			private function updateRotateGesture():void
+			{
+				if (rotateCheckBox.selected && !rotateGesture)
+				{
+					rotateGesture = RotateGesture.add(image);
+				}
+				else if (!rotateCheckBox.selected && rotateGesture)
+				{
+					rotateGesture.dispose();
+					rotateGesture = null;
+				}
+			}
+		]]>
+	</fx:Script>
+	
+	<s:Group top="10" left="10" width="100%" scaleX="0.5" scaleY="0.5">
+		<s:layout>
+			<s:TileLayout/>
+		</s:layout>
+		<controls:HintText text="You can drag (with 1 or 2 fingers), scale (pinch) and rotate the image."/>
+		<s:Button id="resetButton" label="Reset image transformation" click="reset()"/>
+		<s:CheckBox id="dragCheckBox" label="Drag" selected="true" change="updateDragGesture()"/>
+		<s:CheckBox id="zoomCheckBox" label="Zoom" selected="true" change="updateZoomGesture()"/>
+		<s:CheckBox id="rotateCheckBox" label="Rotate" selected="true" change="updateRotateGesture()"/>
+		<s:CheckBox id="ratioCheckBox" label="Lock aspect ratio (for ZoomGesture)" selected="true" change="updateZoomGesture()" />
+	</s:Group>
+	
+	<s:Image id="image"
+		x="60" y="60"
+		source="@Embed(source='/../build/assets/images/placekitten.jpg')"
+		alpha="0.4"
+		/>
+
+</views:ExampleViewBase>

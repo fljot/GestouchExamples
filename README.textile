@@ -1,0 +1,30 @@
+h2. Examples repository for Gestouch Framework.
+
+"Gestouch Framework":http://github.com/fljot/Gestouch
+
+
+h3. Usage
+
+Build is powered by Ant.
+1. Make your own build.properties out of build.template.properties by copying and renaming. Fix several path properties (like path to your Flex SDK, Android SDK, etc..).
+2. If you're using IDE such as FDT or FB(Flash/Flex Builder) point to Gestouch project (framework source project) as a reference project ("Project dependencies" for FDT, Library project for FB, etc..). Don't forget to fix src_framework.lib property also.
+3. If you are FDT4 user: set property user.ide to FDT4 to have faster compilation time and extra tasks like debugger and profiler. If you use other IDE — skip it, there's a fallback to mxmlc.jar in Ant tasks. If someone knows tasks for FB, IDEA, FD — feel free to add them.
+4. Check available Ant tasks and run them.
+
+Hint for compiling for iOS: do it through console interface (Terminal on MacOS) so that IDE would be free and usable. For example:
+ant package.ipa -Duser.ide=none
+
+
+h3. Code
+
+* "Gestouch Framework":http://github.com/fljot/Gestouch
+* "Gestouch Examples":http://github.com/fljot/GestouchExamples
+
+
+h2. License
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.

@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<views:ExampleViewBase xmlns:fx="http://ns.adobe.com/mxml/2009"
+        xmlns:s="library://ns.adobe.com/flex/spark"
+		xmlns:mx="library://ns.adobe.com/flex/mx"
+		xmlns:views="org.gestouch.examples.views.*"
+		xmlns:controls="org.gestouch.examples.controls.*"
+		title="DoubleTapGesture Examples"
+		>
+	
+	<fx:Script>
+		<![CDATA[
+			import spark.components.Button;
+			import spark.components.TextInput;
+
+			import com.greensock.TweenMax;
+			import com.greensock.plugins.GlowFilterPlugin;
+			import com.greensock.plugins.TweenPlugin;
+
+			import org.gestouch.events.DoubleTapGestureEvent;
+			import org.gestouch.gestures.DoubleTapGesture;
+
+			import flash.display.DisplayObject;
+			import flash.events.FocusEvent;
+			import flash.events.MouseEvent;
+
+
+			override protected function init():void
+			{
+				TweenPlugin.activate([GlowFilterPlugin]);
+				
+				button1.addEventListener(DoubleTapGestureEvent.GESTURE_DOUBLE_TAP, button_gestureDoubleTapHandler);
+				button2.addEventListener(DoubleTapGestureEvent.GESTURE_DOUBLE_TAP, button_gestureDoubleTapHandler);
+				button3.addEventListener(DoubleTapGestureEvent.GESTURE_DOUBLE_TAP, button_gestureDoubleTapHandler);
+				button4.addEventListener(DoubleTapGestureEvent.GESTURE_DOUBLE_TAP, button_gestureDoubleTapHandler);
+				
+				label.addEventListener(DoubleTapGestureEvent.GESTURE_DOUBLE_TAP, label_gestureDoubleTapHandler);
+				label.addEventListener(FocusEvent.FOCUS_OUT, label_focusOutHandler);
+			}
+			
+			
+			override protected function onViewActivate():void
+			{
+				super.onViewActivate();
+				
+				var foo:DoubleTapGesture = DoubleTapGesture.add(button1);
+				DoubleTapGesture.add(button2);
+				try
+				{
+					foo.target = button2;	
+				}
+				catch(error:Error)
+				{
+					// example to show that u can't set another gesture
+					// of the same type on one target
+					trace(error);
+					trace(foo.target == button1);
+					trace(foo.target == button2);
+				}
+				DoubleTapGesture.add(label, {timeThreshold: 1000});
+				DoubleTapGesture.add(button3, {minTouchPointsCount: 2, moveThreshold: 50});
+				DoubleTapGesture.add(button4, {minTouchPointsCount: 2, moveThreshold: NaN});
+			}
+			
+			
+			override protected function onViewDeactivate():void
+			{
+				super.onViewDeactivate();
+				
+				DoubleTapGesture.remove(button1);
+				DoubleTapGesture.remove(button2);
+				DoubleTapGesture.remove(label);
+				DoubleTapGesture.remove(button3);
+				DoubleTapGesture.remove(button4);
+			}
+			
+
+			private function button_gestureDoubleTapHandler(event:DoubleTapGestureEvent):void
+			{
+				var button:Button = event.currentTarget as Button;
+				TweenMax.fromTo(button, 1,
+					{glowFilter: {color: 0xEEEEEE * Math.random(), blurX: 16, blurY: 16, strength: 2, alpha: 1}},
+					{glowFilter: {alpha: 0, remove: true}
+				});
+			}
+
+
+			private function label_gestureDoubleTapHandler(event:DoubleTapGestureEvent):void
+			{
+				var label:TextInput = event.currentTarget as TextInput;
+				label.editable = !label.editable;
+				if (label.editable)
+				{
+					stage.focus = label;
+					label.text = "You can edit me now...";
+					stage.addEventListener(MouseEvent.MOUSE_DOWN, stage_mouseDownHandler, true);
+				}
+				else
+				{
+					label.text = "Hold me for to make editable";
+				}
+			}
+
+
+			private function stage_mouseDownHandler(event:MouseEvent):void
+			{
+				if ((stage.focus == label || (stage.focus && label.contains(stage.focus))) && !label.contains(event.target as DisplayObject))
+				{
+					stage.focus = null;
+				}
+			}
+			
+			
+			private function label_focusOutHandler(event:FocusEvent):void
+			{				
+				if (stage.focus != label && (!stage.focus || !label.contains(stage.focus)))				
+				{
+					stage.removeEventListener(MouseEvent.MOUSE_DOWN, stage_mouseDownHandler, true);
+					label.editable = false;
+					label.text = "Double-tap me to make editable";
+				}
+			}
+		]]>
+	</fx:Script>
+
+	<s:Scroller width="100%" height="100%">
+		<s:Group>
+			<s:layout>
+				<s:VerticalLayout/>
+			</s:layout>
+	
+			<controls:HintText text="Double-tap these buttons for them to respond. Try several buttons at the same time — it's basically multi-user interface."/>
+			<s:Group top="10" left="10">
+				<s:layout>
+					<s:HorizontalLayout/>
+				</s:layout>
+				<s:Button id="button1" label="Double-tap me"/>
+				<s:Button id="button2" label="Double-tap me"/>
+			</s:Group>
+		
+			<mx:HRule width="100%"/>
+			
+			<controls:HintText text="Double-tap this input element in 1000ms time-frame to make editable."/>
+			<controls:EditableTextInput id="label" text="Double-tap me to make editable" editable="false"/>
+			
+			<mx:HRule width="100%"/>
+			
+			<controls:HintText text="This one below is DoubleTapGesture with minTouchPointsCount = 2."/>
+			<s:Button id="button3" label="Double-tap me with two fingers"/>
+			<s:Button id="button4" label="Double-tap me with two fingers (no moveThreshold)"/>
+		</s:Group>
+	</s:Scroller>
+</views:ExampleViewBase>

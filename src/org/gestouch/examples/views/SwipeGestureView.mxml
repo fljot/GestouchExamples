@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<views:ExampleViewBase xmlns:fx="http://ns.adobe.com/mxml/2009"
+        xmlns:s="library://ns.adobe.com/flex/spark"
+		xmlns:mx="library://ns.adobe.com/flex/mx"
+		xmlns:views="org.gestouch.examples.views.*"
+		xmlns:controls="org.gestouch.examples.controls.*"
+		title="SwipeGesture Examples"
+		>
+	
+	<fx:Script>
+		<![CDATA[
+			import com.greensock.TweenMax;
+			import com.greensock.easing.Sine;
+
+			import org.gestouch.Direction;
+			import org.gestouch.GestureUtils;
+			import org.gestouch.events.SwipeGestureEvent;
+			import org.gestouch.examples.controls.ArrowShape;
+			import org.gestouch.gestures.SwipeGesture;
+
+			import flash.display.BlendMode;
+
+
+			private var arrow:ArrowShape;
+			private var swipeGesture:SwipeGesture;
+			
+			
+			override protected function init():void
+			{
+				arrow = new ArrowShape();
+				arrow.scaleX = arrow.scaleY = 50;
+				arrow.blendMode = BlendMode.INVERT;
+				arrow.alpha = 0;
+				arrowContainer.addChild(arrow);
+				
+				
+				stage.addEventListener(SwipeGestureEvent.GESTURE_SWIPE, gestureSwipeHandler);
+			}
+			
+			
+			override protected function onViewActivate():void
+			{
+				super.onViewActivate();
+				
+				swipeGesture = SwipeGesture.add(stage, {direction: Direction.STRAIGHT_AXES});
+				velocityThresholdSlider.value = swipeGesture.velocityThreshold / GestureUtils.IPS_TO_PPMS;
+			}
+			
+			
+			override protected function onViewDeactivate():void
+			{
+				super.onViewDeactivate();
+				
+				swipeGesture.dispose();
+				swipeGesture = null;
+			}
+			
+			
+			private function velocityThresholdSlider_changeHandler(event:Event = null):void
+			{
+				if (swipeGesture)
+				{
+					swipeGesture.velocityThreshold = velocityThresholdSlider.value * GestureUtils.IPS_TO_PPMS;
+				}
+			}
+
+
+			private function gestureSwipeHandler(event:SwipeGestureEvent):void
+			{
+				arrow.scaleX = (event.offsetX < 0 && event.offsetY == 0 ? -1 : 1) * Math.abs(arrow.scaleX);
+				var angle:int = 0;//event.offsetX == 0 ? (event.offsetY > 0 ? 90 : -90) : Math.atan(event.offsetY / event.offsetX) * 180 / Math.PI;
+				if (event.offsetY != 0)
+				{
+					angle = event.offsetY > 0 ? 90 : -90;
+				}
+				arrow.rotation = angle;
+				TweenMax.fromTo(arrow, 2, {alpha: 1}, {alpha: 0, ease: Sine.easeIn});
+			}
+			
+			
+			override protected function onResize(width:Number, height:Number):void
+			{
+				super.onResize(width, height);
+				
+				arrow.x = width >> 1;
+				arrow.y = height >> 1;
+			}
+		]]>
+	</fx:Script>
+	
+	<s:Group top="10" left="10" width="100%" scaleX="0.5" scaleY="0.5">
+		<s:layout>
+			<s:VerticalLayout/>
+		</s:layout>
+		<controls:HintText text="Swipe horizontally and vertically to see direction arrow."/>
+		<s:Label text="velocityThreshold"/>
+		<s:HSlider id="velocityThresholdSlider"
+			minimum="1" maximum="10" stepSize="0.5"
+			change="velocityThresholdSlider_changeHandler(event)"/>
+	</s:Group>
+
+	<s:SpriteVisualElement id="arrowContainer" mouseEnabled="false" mouseChildren="false" />
+</views:ExampleViewBase>

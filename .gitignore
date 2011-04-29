@@ -1,0 +1,10 @@
+_resources/
+bin/
+bin-debug/
+bin-release/
+
+.svn/
+
+Thumbs.db
+.DS_Store
+build.properties

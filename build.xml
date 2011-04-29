@@ -1,0 +1,299 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project name="GestouchExamples" default="usage" basedir=".">
+	
+	<!-- Load properties -->
+	<property file="build.properties" />
+	<property file="version.properties" />
+	
+	
+	<!-- Additional tasks -->
+	<taskdef resource="net/sf/antcontrib/antcontrib.properties" classpath="${build.dir}/libs/ant-contrib-1.0b3.jar" />
+	
+	
+	<!-- Visible targets -->
+	
+	<target name="usage">
+		<echo>Usage:
+- Use debug.GestouchExamples task to compile and run example application.
+- Use package.ipa task to compile for iOS device. Default example name to compile is GestouchExamples (just hit enter when input required).
+- Use package.apk task to compile for Android device. Default example name to compile is GestouchExamples (just hit enter when input required).
+		</echo>
+	</target>
+	
+	<target name="debug.LongPressGestureExample" description="">
+		<compile.example exampleName="LongPressGestureExample" openSWF="true" />
+	</target>
+	
+	<target name="debug.DoubleTapGestureExample" description="">
+		<compile.example exampleName="DoubleTapGestureExample" openSWF="true" />
+	</target>
+	
+	<target name="debug.SwipeGestureExample" description="">
+		<compile.example exampleName="SwipeGestureExample" openSWF="true" />
+	</target>
+	
+	<target name="debug.GestouchExamples" description="">
+		<var name="example.name" value="GestouchExamples"/>
+		<compile.debug input="${project.examplesPackage.dir}/${example.name}.mxml"
+			output="${example.name}.swf"
+			compilerArguments=""
+		/>
+		<copy file="${build.dir}/iOS/descriptor-template-ipa.xml" tofile="${bindebug.dir}/${example.name}-ipa.xml" overwrite="true">
+			<filterset>
+				<filter token="ID" value="com.velvet.PankTest" />
+				<filter token="FILENAME" value="${example.name}" />
+				<filter token="VERSION" value="0.1" />
+				<filter token="CONTENT" value="${example.name}.swf" />
+            </filterset>
+		</copy>
+		<antcall target="ide.startDebugger" />
+		<!--
+		<antcall target="ide.startProfiler" />
+		-->
+		<exec executable="${flexSDK.adl}">
+			<arg value="${bindebug.dir}/${example.name}-ipa.xml" />
+			<arg value="${bindebug.dir}" />
+		</exec>
+	</target>
+	
+	
+	<target name="package.ipa" description="" depends="ide.resetCompiler">
+		<input message="Example name to compile (eg: SwipeGestureExample):"
+			addproperty="example.name"
+			defaultvalue="GestouchExamples"/>
+		
+		<if>
+			<equals arg1="${example.name}" arg2="GestouchExamples"/>
+			<then>
+				<compile.debug input="${project.examplesPackage.dir}/${example.name}.mxml"
+					output="${example.name}.swf"
+					compilerArguments=""
+				/>
+			</then>
+			<else>
+				<compile.example exampleName="${example.name}"/>
+			</else>
+		</if>
+		
+		<if>
+			<equals arg1="${project.ios.certificate.password}" arg2=""/>
+			<then>
+				<input message="Certificate password:"
+					addproperty="var.project.app.certificate.password"/>
+			</then>
+			<else>
+				<var name="var.project.app.certificate.password" value="${project.ios.certificate.password}" />
+			</else>
+		</if>
+		
+		<var name="var.project.app.descriptor" value="${bindebug.dir}/${example.name}-ipa.xml"/>
+		<copy file="${project.ios.descriptor.template}" tofile="${var.project.app.descriptor}" overwrite="true">
+			<filterset>
+				<filter token="ID" value="${project.ios.appID}" />
+				<filter token="FILENAME" value="${example.name}" />
+				<filter token="VERSION" value="${project.version}" />
+				<filter token="CONTENT" value="${example.name}.swf" />
+            </filterset>
+		</copy>
+		
+		<var name="ipaTarget" value="ipa-test"/>
+		<java jar="${flexSDK.adt}" fork="true" failonerror="true">
+			<arg value="-package"/>
+			<arg line="-target ${ipaTarget}"/>
+			<arg line="-provisioning-profile ${project.ios.provisionprofile}"/>
+			<arg value="-storetype"/>
+			<arg value="pkcs12"/>
+			<arg value="-keystore"/>
+			<arg value="${project.ios.certificate}"/>
+			<arg value="-storepass"/>
+			<arg value="${var.project.app.certificate.password}"/>
+			<arg value="${bindebug.dir}/${example.name}.ipa" />
+			<arg value="${var.project.app.descriptor}" />
+			<arg value="-C"/>
+			<arg value="${bindebug.dir}" />
+			<arg value="${example.name}.swf" />
+		</java>
+	</target>
+	
+	
+	<target name="package.apk" description="" depends="ide.resetCompiler">
+		<input message="Example name to compile (eg: SwipeGestureExample):"
+			addproperty="example.name"
+			defaultvalue="GestouchExamples"/>
+		
+		<if>
+			<equals arg1="${example.name}" arg2="GestouchExamples"/>
+			<then>
+				<compile.debug input="${project.examplesPackage.dir}/${example.name}.mxml"
+					output="${example.name}.swf"
+					compilerArguments=""
+				/>
+			</then>
+			<else>
+				<compile.example exampleName="${example.name}"/>
+			</else>
+		</if>
+		
+		<if>
+			<equals arg1="${project.android.certificate.password}" arg2=""/>
+			<then>
+				<input message="Certificate password:"
+					addproperty="var.project.app.certificate.password"/>
+			</then>
+			<else>
+				<var name="var.project.app.certificate.password" value="${project.android.certificate.password}" />
+			</else>
+		</if>
+		
+		<var name="var.project.app.descriptor" value="${bindebug.dir}/${example.name}-apk.xml"/>
+		<copy file="${project.android.descriptor.template}" tofile="${var.project.app.descriptor}" overwrite="true">
+			<filterset>
+				<filter token="ID" value="${project.air.appID}" />
+				<filter token="FILENAME" value="${example.name}" />
+				<filter token="VERSION" value="${project.version}" />
+				<filter token="CONTENT" value="${example.name}.swf" />
+            </filterset>
+		</copy>
+		
+		<java jar="${flexSDK.adt}" fork="true" failonerror="true">
+			<arg value="-package" />
+			
+			<arg value="-target" />
+			<arg value="apk-debug" />
+						
+			<arg value="-storetype" />
+			<arg value="pkcs12" />
+			<arg value="-keystore" />
+			<arg value="${project.android.certificate}"/>
+			<arg value="-storepass" />
+			<arg value="${var.project.app.certificate.password}" />
+
+			<arg value="${bindebug.dir}/${example.name}.apk" />
+			<arg value="${var.project.app.descriptor}" />
+			<arg value="-C" />
+			<arg value="${bindebug.dir}" />
+			<arg value="${example.name}.swf" />
+		</java>
+		
+		<!-- Installing the published application on to the emulator -e for emulator, -d for device -->
+		<exec executable="${android.adb}">
+			<arg line="-d"/>
+			<arg line="install"/>
+			<arg line="-r"/>
+			<arg line="${bindebug.dir}/${example.name}.apk"/>
+		</exec>
+	</target>
+	
+	<target name="ide.startDebugger" description="Starts IDE Debugger">
+		<if>
+			<equals arg1="${user.ide}" arg2="FDT4"/>
+			<then>
+				<fdt.startDebugger projectname="${project.name}" />
+			</then>
+			<else>
+				<echo>ide.startDebugger task is available only for FDT4. TODO: tasks for other IDEs</echo>
+			</else>
+		</if>
+	</target>
+	
+	<target name="ide.startProfiler" description="Starts IDE Profiler">
+		<if>
+			<equals arg1="${user.ide}" arg2="FDT4"/>
+			<then>
+				<fdt.startProfiler projectname="${project.name}"/>
+			</then>
+			<else>
+				<echo>ide.startProfiler task is available only for FDT4. TODO: tasks for other IDEs</echo>
+			</else>
+		</if>
+	</target>
+	
+	<target name="ide.resetCompiler" description="">
+		<if>
+			<equals arg1="${user.ide}" arg2="FDT4"/>
+			<then>
+				<fdt.launch.resetFlexCompiler />
+			</then>
+			<else>
+				<echo>ide.resetCompiler task is available only for FDT4. TODO: tasks for other IDEs</echo>
+			</else>
+		</if>
+	</target>	
+	
+	<!-- Hidden targets and macro definitions-->
+	
+	<macrodef name="compile.example">
+		<attribute name="exampleName" />
+		<attribute name="compilerArguments" default="" />
+		<attribute name="air" default="true" />
+		<attribute name="openSWF" default="false" />
+		<sequential>
+			<compile.debug input="${project.examplesPackage.dir}/@{exampleName}.as"
+				output="@{exampleName}.swf"
+				compilerArguments="@{compilerArguments}"
+				air="@{air}"
+				openSWF="@{openSWF}"
+			/>
+		</sequential>
+	</macrodef>	
+	
+	<macrodef name="compile.debug">
+		<attribute name="input" />
+		<attribute name="output" />
+		<attribute name="air" default="true" />
+		<attribute name="compilerArguments" default="" />
+		<attribute name="openSWF" default="false" />
+		<sequential>
+			<var name="var.compilerArguments" value="${project.baseCompilerArguments} ${project.debugCompilerArguments} @{compilerArguments}" />
+			<if>
+				<equals arg1="@{air}" arg2="true" />
+				<then>
+					<var name="var.compilerArguments" value="${var.compilerArguments} ${project.mobileCompilerArguments} +configname=airmobile" />
+				</then>
+			</if>
+			
+			<if>
+				<equals arg1="${user.ide}" arg2="FDT4"/>
+				<then>
+					<fdt.launch.application projectname="${project.name}"
+						compilerarguments="${var.compilerArguments}"
+						mainclass="${src.dir}/@{input}"
+						debug="true"
+						profile="false"
+						target="${bindebug.dir}/@{output}" 
+						startswf="@{openSWF}"
+						swflauncher="Adobe Flash Player"
+					/>
+				</then>
+				<else>
+					<java jar="${flexSDK.dir}/lib/mxmlc.jar" dir="${flexSDK.dir}/frameworks" fork="true" failonerror="true">
+						<arg value="${src.dir}/@{input}"/>
+						<arg value="-incremental=false"/>
+						<arg value="-headless-server=true"/>
+						<arg value="-debug=true"/>
+						<!--<arg value="+configname=flex"/>-->
+						<arg value="-source-path+=${src.dir}"/>
+						<arg value="-source-path+=${src_framework.dir}"/>
+						<arg value="-source-path+=${src_external.dir}"/>
+						<arg value="-library-path+=${flexSDK.dir}/frameworks/libs"/>
+						<arg value="-library-path+=${flexSDK.dir}/frameworks/libs/mx"/>
+						<arg value="-library-path+=${libs.dir}"/>
+						<arg value="-output=${bindebug.dir}/@{output}"/>
+						<arg line="${var.compilerArguments}"/>						
+					</java>
+					
+					<if>
+						<equals arg1="@{openSWF}" arg2="true" />
+						<then>
+							<exec executable="open" vmlauncher="true" spawn="false" failonerror="true">
+								<arg line="-a '${flashPlayer}'" />
+								<arg line="${bindebug.dir}/@{output}" />
+							</exec>
+						</then>
+					</if>
+				</else>
+			</if>			
+		</sequential>
+	</macrodef>
+	
+</project>
