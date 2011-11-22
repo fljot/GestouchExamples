@@ -1,12 +1,17 @@
 package org.gestouch.examples.views
 {
-	import spark.events.ViewNavigatorEvent;
-	import flash.events.MouseEvent;
 	import spark.components.Button;
 	import spark.components.View;
+	import spark.events.ViewNavigatorEvent;
 
+	import org.gestouch.examples.model.ExamplesModel;
+
+	import mx.core.UIComponent;
 	import mx.events.FlexEvent;
 	import mx.events.ResizeEvent;
+
+	import flash.events.MouseEvent;
+	import flash.system.Capabilities;
 
 
 	/**
@@ -14,26 +19,45 @@ package org.gestouch.examples.views
 	 */
 	public class ExampleViewBase extends View
 	{
+		[Embed("/assets/images/settings-icon.png")]
+		private static const settingsIconAsset:Class;
+			
 		private var backButton:Button;
-		private var helpButton:Button;
+		private var settingsButton:Button;
+		
+		[Bindable]
+		protected var dataModel:ExamplesModel;
 		
 		
 		public function ExampleViewBase()
 		{
 			super();
 			
-			backButton = new Button();
-			backButton.label = "Back";
-			helpButton = new Button();
-			helpButton.label = "?";
+			settingsButton = new Button();
+			settingsButton.setStyle("icon", settingsIconAsset);
 			
-			navigationContent = [backButton];
-			actionContent = [helpButton];
+			backButton = new Button();
+			if (Capabilities.manufacturer.toLowerCase().indexOf("android") == -1)
+			{
+				backButton.label = "Back";
+				navigationContent = [backButton];
+			}
+			if (this.hasOwnProperty("settings"))
+			{
+				actionContent = [settingsButton];
+			}
+			
 			addEventListener(ResizeEvent.RESIZE, resizeHandler);
 			addEventListener(FlexEvent.INITIALIZE, initializeHandler);
 			addEventListener(FlexEvent.CREATION_COMPLETE, creationCompleteHandler);
 			addEventListener(ViewNavigatorEvent.VIEW_ACTIVATE, viewActivateHandler);
 			addEventListener(ViewNavigatorEvent.VIEW_DEACTIVATE, viewDeactivateHandler);
+		}
+		
+		
+		protected function get settingsPanel():UIComponent
+		{
+			return this["settings"] as UIComponent;
 		}
 		
 		
@@ -43,15 +67,33 @@ package org.gestouch.examples.views
 		}
 		
 		
-		protected function openHelp():void
+		protected function openSettings():void
 		{
-			
+			if (settingsPanel)
+			{
+				if (settingsPanel.stage)
+				{
+					removeElement(settingsPanel);
+				}
+				else
+				{
+					addElement(settingsPanel);
+				}
+			}
 		}
 
 
 		protected function onViewActivate():void
 		{
-			
+			if (!dataModel && data)
+			{
+				dataModel = data as ExamplesModel;
+				
+				if (dataModel.lastViewTitle)
+				{
+					title = dataModel.lastViewTitle;
+				}
+			}
 		}
 		
 		
@@ -59,45 +101,48 @@ package org.gestouch.examples.views
 		{
 			
 		}
-
-
+		
+		
 		protected function onResize(width:Number, height:Number):void
 		{
 			
 		}
-
-
+		
+		
 		private function viewActivateHandler(event:ViewNavigatorEvent):void
 		{
-			backButton.addEventListener(MouseEvent.CLICK, backButton_clickHandler);
-			helpButton.addEventListener(MouseEvent.CLICK, helpButton_clickHandler);
+			if (backButton)
+			{
+				backButton.addEventListener(MouseEvent.CLICK, backButton_clickHandler);
+			}
+			settingsButton.addEventListener(MouseEvent.CLICK, settingsButton_clickHandler);
 			
 			onViewActivate();
 		}
-
-
-		private function helpButton_clickHandler(event:MouseEvent):void
+		
+		
+		private function settingsButton_clickHandler(event:MouseEvent):void
 		{
-			openHelp();
+			openSettings();
 		}
-
-
+		
+		
 		private function viewDeactivateHandler(event:ViewNavigatorEvent):void
 		{
 			backButton.removeEventListener(MouseEvent.CLICK, backButton_clickHandler);
-			helpButton.removeEventListener(MouseEvent.CLICK, helpButton_clickHandler);
+			settingsButton.removeEventListener(MouseEvent.CLICK, settingsButton_clickHandler);
 			
 			onViewDeactivate();
 		}
-
-
+		
+		
 		private function backButton_clickHandler(event:MouseEvent):void
 		{
 			backButton.removeEventListener(MouseEvent.CLICK, backButton_clickHandler);
 			navigator.popView();
 		}
-
-
+		
+		
 		private function initializeHandler(event:FlexEvent):void
 		{
 			removeEventListener(FlexEvent.INITIALIZE, initializeHandler);
@@ -110,8 +155,8 @@ package org.gestouch.examples.views
 			removeEventListener(FlexEvent.CREATION_COMPLETE, creationCompleteHandler);
 			onResize(width, height);
 		}
-
-
+		
+		
 		private function resizeHandler(event:ResizeEvent):void
 		{
 			onResize(width, height);

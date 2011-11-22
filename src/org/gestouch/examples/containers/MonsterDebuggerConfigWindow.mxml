@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+               xmlns:s="library://ns.adobe.com/flex/spark"
+               xmlns:mx="library://ns.adobe.com/flex/mx"
+               title="MonsterDebugger Mobile"
+               initialize="init()"
+               close="onClose()"
+               >
+	<fx:Script>
+		<![CDATA[
+			import com.demonsters.debugger.MonsterDebugger;
+
+			import mx.core.FlexGlobals;
+			import mx.managers.PopUpManager;
+
+			import flash.events.Event;
+			import flash.net.SharedObject;
+
+			
+			private var so:SharedObject = SharedObject.getLocal("GestouchExamples_MonsterDebuggerMobile");
+			
+			
+			private function init():void
+			{
+				var ip:String = so.data.ip;
+				if (!ip)
+				{
+					ip = "127.0.0.1";
+				}
+				ipInput.text = ip;
+				
+				stage.addEventListener(Event.RESIZE, onStageResize);
+			}
+			
+			
+			private function connect():void
+			{
+				var ip:String = ipInput.text;
+				so.data.ip = ip;
+				try
+				{
+					so.flush();
+				}
+				catch (err:Error){}
+				
+				MonsterDebugger.initialize(FlexGlobals.topLevelApplication, ip, onConnected);
+				connectButton.enabled = false;
+			}
+			
+			
+			private function onConnected():void
+			{
+				if (stage)
+				{
+					onClose();
+				}
+			}
+
+
+			private function onStageResize(event:Event = null):void
+			{
+				PopUpManager.centerPopUp(this);
+			}
+			
+			
+			protected function onClose():void
+			{
+				stage.removeEventListener(Event.RESIZE, onStageResize);
+                PopUpManager.removePopUp(this);
+            }
+		]]>
+	</fx:Script>
+
+	<s:Form>
+		<s:FormItem label="IP">
+			<s:TextInput id="ipInput" />
+		</s:FormItem>
+		<s:FormItem>
+			<s:Button id="connectButton" label="Connect" click="connect()"/>
+		</s:FormItem>
+	</s:Form>
+	
+</s:TitleWindow>

@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<views:ExampleViewBase xmlns:fx="http://ns.adobe.com/mxml/2009"
+    xmlns:s="library://ns.adobe.com/flex/spark"
+	xmlns:mx="library://ns.adobe.com/flex/mx"
+	xmlns:views="org.gestouch.examples.views.*"
+	xmlns:controls="org.gestouch.examples.controls.*"
+	xmlns:containers="org.gestouch.examples.containers.*"
+	>
+	
+	<fx:Script>
+		<![CDATA[
+			import com.greensock.TweenMax;
+			import com.greensock.plugins.GlowFilterPlugin;
+			import com.greensock.plugins.TweenPlugin;
+
+			import org.gestouch.events.TapGestureEvent;
+			import org.gestouch.gestures.TapGesture;
+			
+			
+			private var doubleTapGesture:TapGesture;
+			private var twoFingerTapGesture:TapGesture;
+
+
+			override protected function init():void
+			{
+				super.init();
+				
+				TweenPlugin.activate([GlowFilterPlugin]);				
+			}
+			
+			
+			override protected function onViewActivate():void
+			{
+				super.onViewActivate();
+				
+				doubleTapGesture = new TapGesture(button);
+				doubleTapGesture.numTapsRequired = 2;
+				doubleTapGesture.addEventListener(TapGestureEvent.GESTURE_TAP, onGesture);
+				
+				twoFingerTapGesture = new TapGesture(button);
+				twoFingerTapGesture.numTouchesRequired = 2;
+				twoFingerTapGesture.addEventListener(TapGestureEvent.GESTURE_TAP, onGesture);
+			}
+			
+			
+			override protected function onViewDeactivate():void
+			{
+				super.onViewDeactivate();
+				
+				if (doubleTapGesture)
+				{
+					doubleTapGesture.removeEventListener(TapGestureEvent.GESTURE_TAP, onGesture);
+					doubleTapGesture.dispose();
+					doubleTapGesture = null;
+				}
+				if (twoFingerTapGesture)
+				{
+					twoFingerTapGesture.removeEventListener(TapGestureEvent.GESTURE_TAP, onGesture);
+					twoFingerTapGesture.dispose();
+					twoFingerTapGesture = null;
+				}
+			}
+			
+
+			private function onGesture(event:TapGestureEvent):void
+			{
+				var gesture:TapGesture = event.target as TapGesture;
+				var scale:Number;
+				if (gesture == doubleTapGesture)
+				{
+					scale = button.scaleX * 1.2;
+				}
+				else
+				{
+					scale = button.scaleX / 1.2;
+				}
+				
+				TweenMax.to(button, 0.3, {
+					scaleX: scale,
+					scaleY: scale
+				});
+			}
+		]]>
+	</fx:Script>
+
+	<s:Label text="Double-tap to zoom-in, two-finger tap to zoom-out"/>
+	<s:Button id="button" label="O^2 / O O" minWidth="400" minHeight="300" horizontalCenter="0" verticalCenter="0"/>
+	
+</views:ExampleViewBase>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<application xmlns="http://ns.adobe.com/air/application/2.6">
+<application xmlns="http://ns.adobe.com/air/application/3.0">
 
 <!-- Adobe AIR Application Descriptor File Template.
 
@@ -93,11 +93,11 @@
 
         <!-- Whether the app will begin auto-orienting on launch. Optional. Mobile only. Default false -->
 
-        <autoOrients>true</autoOrients>
+		<!-- <autoOrients>true</autoOrients> -->
 
         <!-- Whether the app launches in full screen. Optional. Mobile only. Default false -->
 
-        <fullScreen>true</fullScreen>
+		<!-- <fullScreen>true</fullScreen> -->	
 
         <!-- The render mode for the app (either auto, cpu, or gpu). Optional. Mobile only. Default auto -->
 
@@ -113,6 +113,7 @@
 	<!-- (i.e., to only mobile devices) then add this element and list -->
 	<!-- only the profiles which your application does support. -->
 	<!-- <supportedProfiles>desktop extendedDesktop mobileDevice extendedMobileDevice</supportedProfiles> -->
+	<supportedProfiles>extendedDesktop</supportedProfiles>
 
 	<!-- The subpath of the standard default installation location to use. Optional. -->
 	<!-- <installFolder></installFolder> -->
@@ -190,17 +191,14 @@
 	<!-- </iPhone> -->
 
 	<!-- Specify Android specific tags that get passed to AndroidManifest.xml file. -->
-	<android>
-		<!--
-		<uses-permission android:name="android.permission.INTERNET"/>
-		<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-		<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/> 
-		-->
+		<!--	<uses-permission android:name="android.permission.INTERNET"/>
+				<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+				<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>-->
+	<!-- <android> 
 		<manifestAdditions>
 		<![CDATA[
 			<manifest android:installLocation="auto">
 				<uses-configuration android:reqFiveWayNav="true"/>
-				<uses-permission android:name="android.permission.INTERNET"/>
 				<supports-screens android:normalScreens="true"/>
 				<uses-feature android:required="true" android:name="android.hardware.touchscreen.multitouch"/>
 				<application android:enabled="true">
@@ -214,7 +212,7 @@
 			</manifest>
 		]]>
 		</manifestAdditions> 
-	</android>
+	</android>-->
 	<!-- End of the schema for adding the android specific tags in AndroidManifest.xml file -->
 
 </application>

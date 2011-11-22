@@ -1,40 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
 <views:ExampleViewBase xmlns:fx="http://ns.adobe.com/mxml/2009"
-        xmlns:s="library://ns.adobe.com/flex/spark"
-		xmlns:mx="library://ns.adobe.com/flex/mx"
-		xmlns:views="org.gestouch.examples.views.*"
-		xmlns:controls="org.gestouch.examples.controls.*"
-		title="SwipeGesture Examples"
-		>
+    xmlns:s="library://ns.adobe.com/flex/spark"
+	xmlns:mx="library://ns.adobe.com/flex/mx"
+	xmlns:views="org.gestouch.examples.views.*"
+	xmlns:controls="org.gestouch.examples.controls.*"
+	xmlns:containers="org.gestouch.examples.containers.*"
+	>
 	
 	<fx:Script>
 		<![CDATA[
+			import org.gestouch.gestures.SwipeGestureDirection;
+			import org.gestouch.core.GestureState;
+			import org.gestouch.events.GestureStateEvent;
 			import com.greensock.TweenMax;
 			import com.greensock.easing.Sine;
 
-			import org.gestouch.Direction;
-			import org.gestouch.GestureUtils;
 			import org.gestouch.events.SwipeGestureEvent;
 			import org.gestouch.examples.controls.ArrowShape;
 			import org.gestouch.gestures.SwipeGesture;
-
-			import flash.display.BlendMode;
-
-
+			
+			
 			private var arrow:ArrowShape;
-			private var swipeGesture:SwipeGesture;
+			private var swipe:SwipeGesture;
 			
-			
+				
 			override protected function init():void
 			{
+				super.init();
+				
 				arrow = new ArrowShape();
 				arrow.scaleX = arrow.scaleY = 50;
 				arrow.blendMode = BlendMode.INVERT;
 				arrow.alpha = 0;
 				arrowContainer.addChild(arrow);
-				
-				
-				stage.addEventListener(SwipeGestureEvent.GESTURE_SWIPE, gestureSwipeHandler);
 			}
 			
 			
@@ -42,8 +40,18 @@
 			{
 				super.onViewActivate();
 				
-				swipeGesture = SwipeGesture.add(stage, {direction: Direction.STRAIGHT_AXES});
-				velocityThresholdSlider.value = swipeGesture.velocityThreshold / GestureUtils.IPS_TO_PPMS;
+				swipe = new SwipeGesture(this);
+				swipe.addEventListener(SwipeGestureEvent.GESTURE_SWIPE, onGesture);
+				swipe.addEventListener(GestureStateEvent.STATE_CHANGE, onGestureStateChange);
+				
+				minDistanceSlider.value = swipe.minDistance;
+				touchesSlider.value = swipe.numTouchesRequired;
+				minVelocitySlider.value = swipe.minVelocity;
+				
+				leftCheckBox.selected = (swipe.direction & SwipeGestureDirection.LEFT) > 0;
+				rightCheckBox.selected = (swipe.direction & SwipeGestureDirection.RIGHT) > 0;
+				upCheckBox.selected = (swipe.direction & SwipeGestureDirection.UP) > 0;
+				downCheckBox.selected = (swipe.direction & SwipeGestureDirection.DOWN) > 0;
 			}
 			
 			
@@ -51,21 +59,18 @@
 			{
 				super.onViewDeactivate();
 				
-				swipeGesture.dispose();
-				swipeGesture = null;
-			}
-			
-			
-			private function velocityThresholdSlider_changeHandler(event:Event = null):void
-			{
-				if (swipeGesture)
+				if (swipe)
 				{
-					swipeGesture.velocityThreshold = velocityThresholdSlider.value * GestureUtils.IPS_TO_PPMS;
+					swipe.removeEventListener(SwipeGestureEvent.GESTURE_SWIPE, onGesture);
+					swipe.dispose();
+					swipe = null;
 				}
+				
+				Multitouch.inputMode = MultitouchInputMode.TOUCH_POINT;
 			}
+			
 
-
-			private function gestureSwipeHandler(event:SwipeGestureEvent):void
+			private function onGesture(event:TransformGestureEvent):void
 			{
 				arrow.scaleX = (event.offsetX < 0 && event.offsetY == 0 ? -1 : 1) * Math.abs(arrow.scaleX);
 				var angle:int = 0;//event.offsetX == 0 ? (event.offsetY > 0 ? 90 : -90) : Math.atan(event.offsetY / event.offsetX) * 180 / Math.PI;
@@ -78,26 +83,126 @@
 			}
 			
 			
-			override protected function onResize(width:Number, height:Number):void
+			private function onGestureStateChange(event:GestureStateEvent):void
 			{
-				super.onResize(width, height);
-				
-				arrow.x = width >> 1;
-				arrow.y = height >> 1;
+				if (event.newState == GestureState.FAILED)
+				{
+					TweenMax.fromTo(failedGraphic, 1, {alpha: 1}, {alpha: 0, ease: Sine.easeIn});
+				}
+			}
+			
+			
+			private function onMinDistanceSliderChange(event:Event = null):void
+			{
+				if (swipe)
+				{
+					swipe.minDistance = minDistanceSlider.value;
+				}
+			}
+			
+			
+			private function onTouchesSliderChange(event:Event = null):void
+			{
+				if (swipe)
+				{
+					swipe.numTouchesRequired = touchesSlider.value;
+				}
+			}
+			
+			
+			private function onMinVelocitySliderChange(event:Event = null):void
+			{
+				if (swipe)
+				{
+					swipe.minVelocity = minVelocitySlider.value;
+				}
+			}
+			
+			
+			private function onDirectionChange(event:Event = null):void
+			{
+				var direction:uint;
+				if (leftCheckBox.selected)
+				{
+					direction = direction | SwipeGestureDirection.LEFT;
+				}
+				if (rightCheckBox.selected)
+				{
+					direction = direction | SwipeGestureDirection.RIGHT;
+				}
+				if (upCheckBox.selected)
+				{
+					direction = direction | SwipeGestureDirection.UP;
+				}
+				if (downCheckBox.selected)
+				{
+					direction = direction | SwipeGestureDirection.DOWN;
+				}
+				swipe.direction = direction;
+			}
+			
+			
+			private function onNativeGestureCheckBoxChange(event:Event = null):void
+			{
+				if (nativeGestureCheckBox.selected)
+				{
+					Multitouch.inputMode = MultitouchInputMode.GESTURE;
+					addEventListener(TransformGestureEvent.GESTURE_SWIPE, onGesture);
+				}
+				else
+				{
+					Multitouch.inputMode = MultitouchInputMode.TOUCH_POINT;
+					removeEventListener(TransformGestureEvent.GESTURE_SWIPE, onGesture);
+				}
 			}
 		]]>
 	</fx:Script>
-	
-	<s:Group top="10" left="10" width="100%" scaleX="0.5" scaleY="0.5">
-		<s:layout>
-			<s:VerticalLayout/>
-		</s:layout>
-		<controls:HintText text="Swipe horizontally and vertically to see direction arrow."/>
-		<s:Label text="velocityThreshold"/>
-		<s:HSlider id="velocityThresholdSlider"
-			minimum="1" maximum="10" stepSize="0.5"
-			change="velocityThresholdSlider_changeHandler(event)"/>
-	</s:Group>
 
-	<s:SpriteVisualElement id="arrowContainer" mouseEnabled="false" mouseChildren="false" />
+	<fx:Declarations>
+		<containers:SettingsPanel id="settings">	
+			<s:Label text="minDistance"/>
+			<s:HSlider id="minDistanceSlider"
+				minimum="0" maximum="100" stepSize="1" dataTipPrecision="0"
+				change="onMinDistanceSliderChange(event)"/>
+			
+			<s:Label text="numTouchesRequired"/>
+			<s:HSlider id="touchesSlider"
+				minimum="1" maximum="3" stepSize="1" dataTipPrecision="0"
+				change="onTouchesSliderChange(event)"/>
+			
+			<s:Label text="minVelocity"/>
+			<s:HSlider id="minVelocitySlider"
+				minimum="1" maximum="4" stepSize="0.1" dataTipPrecision="1"
+				change="onMinVelocitySliderChange(event)"/>
+			
+			<s:Label text="direction"/>
+			<s:CheckBox id="leftCheckBox" label="left"
+				change="onDirectionChange(event)"/>
+			<s:CheckBox id="rightCheckBox" label="right"
+				change="onDirectionChange(event)"/>
+			<s:CheckBox id="upCheckBox" label="up"
+				change="onDirectionChange(event)"/>
+			<s:CheckBox id="downCheckBox" label="down"
+				change="onDirectionChange(event)"/>
+			
+			<s:CheckBox id="nativeGestureCheckBox" label="native gesture"
+				change="onNativeGestureCheckBoxChange(event)"/>			
+			
+		</containers:SettingsPanel>
+	</fx:Declarations>
+
+	<s:SpriteVisualElement id="arrowContainer" mouseEnabled="false" mouseChildren="false"
+		horizontalCenter="0" verticalCenter="0"
+		/>
+
+	<s:Graphic id="failedGraphic" alpha="0" mouseEnabled="false" mouseChildren="false"
+		horizontalCenter="0" verticalCenter="0"
+		>
+		<s:Rect width="100" height="100">
+			<s:fill>
+				<s:SolidColor color="0xCC0000" />
+			</s:fill>
+		</s:Rect>
+	</s:Graphic>
+	
 </views:ExampleViewBase>

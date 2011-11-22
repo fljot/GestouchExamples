@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<views:ExampleViewBase xmlns:fx="http://ns.adobe.com/mxml/2009"
+    xmlns:s="library://ns.adobe.com/flex/spark"
+	xmlns:mx="library://ns.adobe.com/flex/mx"
+	xmlns:views="org.gestouch.examples.views.*"
+	xmlns:controls="org.gestouch.examples.controls.*"
+	xmlns:containers="org.gestouch.examples.containers.*"
+	creationComplete="centerImage()"
+	resize="centerImage()"
+	>
+	
+	<fx:Script>
+		<![CDATA[
+			import com.greensock.plugins.GlowFilterPlugin;
+			import com.greensock.plugins.TweenPlugin;
+
+			import org.gestouch.events.RotateGestureEvent;
+			import org.gestouch.gestures.RotateGesture;
+			import org.gestouch.utils.GestureUtils;
+			
+			
+			private var rotate:RotateGesture;
+
+
+			override protected function init():void
+			{
+				super.init();
+				
+				TweenPlugin.activate([GlowFilterPlugin]);				
+			}
+			
+			
+			override protected function onViewActivate():void
+			{
+				super.onViewActivate();
+				
+				rotate = new RotateGesture(image);
+				rotate.addEventListener(RotateGestureEvent.GESTURE_ROTATE, onGesture);
+			}
+			
+			
+			override protected function onViewDeactivate():void
+			{
+				super.onViewDeactivate();
+				
+				if (rotate)
+				{
+					rotate.removeEventListener(RotateGestureEvent.GESTURE_ROTATE, onGesture);
+					rotate.dispose();
+					rotate = null;
+				}
+			}
+			
+			
+			private function onGesture(event:RotateGestureEvent):void
+			{
+				var loc:Point = globalToLocal(rotate.location);
+				
+				if (event.phase == GesturePhase.BEGIN || event.phase == GesturePhase.UPDATE)
+				{			
+					var matrix:Matrix = image.transform.matrix;
+					var transformPoint:Point = matrix.transformPoint(new Point(event.localX, event.localY));
+					matrix.translate(-transformPoint.x, -transformPoint.y);
+					matrix.rotate(event.rotation * GestureUtils.DEGREES_TO_RADIANS);
+					matrix.translate(transformPoint.x, transformPoint.y);
+					image.transform.matrix = matrix;
+				}
+			}
+			
+			
+			private function centerImage():void
+			{
+				image.transform.matrix = new Matrix();
+				image.x = (width - image.width) >> 1;
+				image.y = (width - image.height) >> 1;
+			}
+		]]>
+	</fx:Script>
+	
+	<s:Image id="image"
+		source="@Embed(source='/../build/assets/images/placekitten-400-600.jpg')"
+		/>
+	
+</views:ExampleViewBase>
