@@ -7,11 +7,16 @@
 	firstView="org.gestouch.examples.views.GestouchExamplesHomeView"
 	frameRate="60"
 	initialize="init()"
+	applicationComplete="initGestouch()"
 	>
 	
 	<fx:Script>
 		<![CDATA[
+			import org.gestouch.input.MouseInputAdapter;
+			import org.gestouch.core.GesturesManager;
+			import org.gestouch.core.IGesturesManager;
 			import org.gestouch.examples.model.ExamplesModel;
+			import org.gestouch.input.TouchInputAdapter;
 
 			
 			private var model:ExamplesModel = new ExamplesModel();
@@ -20,6 +25,27 @@
 			private function init():void
 			{
 				navigator.firstViewData = model;
+			}
+			
+			
+			private function initGestouch():void
+			{
+				var gesturesManager:IGesturesManager = GesturesManager.getInstance();
+				
+				// You may have some other conditions here e.g.:
+				// add MouseInputAdapter for debug version (to test with touchscreen AND mouse)
+				// or
+				// add TouchInputAdapter if you have some TUIO library
+				// which dispatches (simulates native) TouchEvents
+				// etc...
+				if (Multitouch.supportsTouchEvents)
+				{
+					gesturesManager.addInputAdapter(new TouchInputAdapter(stage));
+				}
+				else
+				{
+					gesturesManager.addInputAdapter(new MouseInputAdapter(stage));
+				}
 			}
 		]]>
 	</fx:Script>
