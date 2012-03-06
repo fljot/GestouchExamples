@@ -44,7 +44,7 @@
 				swipe.addEventListener(SwipeGestureEvent.GESTURE_SWIPE, onGesture);
 				swipe.addEventListener(GestureStateEvent.STATE_CHANGE, onGestureStateChange);
 				
-				minDistanceSlider.value = swipe.minDistance;
+				minDistanceSlider.value = swipe.minOffset;
 				touchesSlider.value = swipe.numTouchesRequired;
 				minVelocitySlider.value = swipe.minVelocity;
 				
@@ -103,7 +103,7 @@
 			{
 				if (swipe)
 				{
-					swipe.minDistance = minDistanceSlider.value;
+					swipe.minOffset = minDistanceSlider.value;
 				}
 			}
 			
@@ -179,7 +179,7 @@
 			
 			<s:Label text="minVelocity"/>
 			<s:HSlider id="minVelocitySlider"
-				minimum="1" maximum="4" stepSize="0.1" dataTipPrecision="1"
+				minimum="0.5" maximum="3" stepSize="0.05" dataTipPrecision="2"
 				change="onMinVelocitySliderChange(event)"/>
 			
 			<s:Label text="direction"/>
