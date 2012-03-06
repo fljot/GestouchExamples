@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="utf-8"?>
+<views:ExampleViewBase xmlns:fx="http://ns.adobe.com/mxml/2009"
+    xmlns:s="library://ns.adobe.com/flex/spark"
+	xmlns:mx="library://ns.adobe.com/flex/mx"
+	xmlns:views="org.gestouch.examples.views.*"
+	xmlns:controls="org.gestouch.examples.controls.*"
+	xmlns:containers="org.gestouch.examples.containers.*"
+	implements="org.gestouch.core.IGestureDelegate"
+	backgroundColor="0xDDDDDD"
+	>
+	
+	<fx:Script>
+		<![CDATA[
+			import org.gestouch.core.GestureState;
+			import org.gestouch.core.Touch;
+			import org.gestouch.events.PanGestureEvent;
+			import org.gestouch.events.RotateGestureEvent;
+			import org.gestouch.events.ZoomGestureEvent;
+			import org.gestouch.gestures.Gesture;
+			import org.gestouch.gestures.PanGesture;
+			import org.gestouch.gestures.RotateGesture;
+			import org.gestouch.gestures.ZoomGesture;
+			import org.gestouch.utils.GestureUtils;
+
+			import mx.core.FlexGlobals;
+			import mx.core.UIComponent;
+
+
+			private var gestures:Vector.<Gesture> = new Vector.<Gesture>();
+			
+			
+			public function gestureShouldReceiveTouch(gesture:Gesture, touch:Touch):Boolean
+			{
+				return true;
+			}
+			
+			
+			public function gestureShouldBegin(gesture:Gesture):Boolean
+			{
+				return true;
+			}
+			
+				
+			public function gesturesShouldRecognizeSimultaneously(gesture:Gesture, otherGesture:Gesture):Boolean
+			{
+				if (gesture.target == otherGesture.target)
+				{
+					return true;
+				}
+				
+				return false;
+			}
+			
+			
+			override protected function onViewActivate():void
+			{
+				super.onViewActivate();
+				
+				addGestureToTarget(yellow);
+				addGestureToTarget(cyan);
+				addGestureToTarget(magenta);
+				addGestureToTarget(FlexGlobals.topLevelApplication as InteractiveObject);
+			}
+			
+			
+			override protected function onViewDeactivate():void
+			{
+				super.onViewDeactivate();
+								
+				for each (var gesture:Gesture in gestures) 
+				{
+					gesture.removeEventListener(PanGestureEvent.GESTURE_PAN, onPan);
+					gesture.removeEventListener(ZoomGestureEvent.GESTURE_ZOOM, onZoom);
+					gesture.removeEventListener(RotateGestureEvent.GESTURE_ROTATE, onRotate);
+					gesture.dispose();
+				}
+				
+				FlexGlobals.topLevelApplication.transform.matrix = new Matrix();
+			}
+			
+			
+			private function addGestureToTarget(target:InteractiveObject):void
+			{
+				var pan:PanGesture = new PanGesture(target);
+				pan.maxNumTouchesRequired = 2;
+				pan.delegate = this;
+				pan.addEventListener(PanGestureEvent.GESTURE_PAN, onPan);
+				gestures.push(pan);
+
+				var zoom:ZoomGesture = new ZoomGesture(target);
+				zoom.addEventListener(ZoomGestureEvent.GESTURE_ZOOM, onZoom);
+				zoom.delegate = this;
+				gestures.push(zoom);
+				
+				var rotate:RotateGesture = new RotateGesture(target);
+				rotate.delegate = this;
+				rotate.addEventListener(RotateGestureEvent.GESTURE_ROTATE, onRotate);
+				gestures.push(rotate);
+				
+				if (target is Image)
+				{
+					(target as Image).setStyle("horizontalCenter", undefined);
+					(target as Image).setStyle("verticalCenter", undefined);
+				}
+			}
+			
+			
+			private function onPan(event:PanGestureEvent):void
+			{
+				var gesture:PanGesture = event.target as PanGesture;
+				var target:UIComponent = gesture.target as UIComponent;
+				
+				if (event.gestureState == GestureState.BEGAN || event.gestureState == GestureState.CHANGED)
+				{
+					target.move(target.x + event.offsetX, target.y + event.offsetY);
+				}
+			}
+			
+			
+			private function onZoom(event:ZoomGestureEvent):void
+			{
+				var gesture:ZoomGesture = event.target as ZoomGesture;
+				var target:UIComponent = gesture.target as UIComponent;
+				
+				if (event.scaleX != 1 || event.scaleY != 1)
+				{
+					var matrix:Matrix = target.transform.matrix;
+					var transformPoint:Point = matrix.transformPoint(target.globalToLocal(gesture.location));
+					matrix.translate(-transformPoint.x, -transformPoint.y);
+					matrix.scale(event.scaleX, event.scaleY);
+					matrix.translate(transformPoint.x, transformPoint.y);
+					target.transform.matrix = matrix;
+				}
+			}
+			
+			
+			private function onRotate(event:RotateGestureEvent):void
+			{
+				var gesture:RotateGesture = event.target as RotateGesture;
+				var target:UIComponent = gesture.target as UIComponent;
+				
+				if (event.rotation != 0)
+				{
+					var matrix:Matrix = target.transform.matrix;
+					var transformPoint:Point = matrix.transformPoint(target.globalToLocal(gesture.location));
+					matrix.translate(-transformPoint.x, -transformPoint.y);
+					matrix.rotate(event.rotation * GestureUtils.DEGREES_TO_RADIANS);
+					matrix.translate(transformPoint.x, transformPoint.y);
+					target.transform.matrix = matrix;
+				}
+			}
+		]]>
+	</fx:Script>
+	
+	
+	<s:Image id="yellow" scaleX="2" scaleY="2"
+		source="@Embed(source='/assets/images/YellowSquare.png')"
+		horizontalCenter="{-yellow.width}" verticalCenter="{-yellow.height}"
+		/>
+	<s:Image id="cyan" scaleX="2" scaleY="2"
+		source="@Embed(source='/assets/images/CyanSquare.png')"
+		horizontalCenter="0" verticalCenter="0"
+		/>
+	<s:Image id="magenta" scaleX="2" scaleY="2"
+		source="@Embed(source='/assets/images/MagentaSquare.png')"
+		horizontalCenter="{magenta.width}" verticalCenter="{magenta.height}"
+		/>
+	
+</views:ExampleViewBase>

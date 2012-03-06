@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<views:ExampleViewBase xmlns:fx="http://ns.adobe.com/mxml/2009"
+    xmlns:s="library://ns.adobe.com/flex/spark"
+	xmlns:mx="library://ns.adobe.com/flex/mx"
+	xmlns:views="org.gestouch.examples.views.*"
+	xmlns:controls="org.gestouch.examples.controls.*"
+	xmlns:containers="org.gestouch.examples.containers.*"
+	creationComplete="centerImage()"
+	resize="centerImage()"
+	>
+	
+	<fx:Script>
+		<![CDATA[
+			import org.gestouch.core.GestureState;
+			import org.gestouch.events.TransformGestureEvent;
+			import org.gestouch.gestures.TransformGesture;
+			import org.gestouch.utils.GestureUtils;
+			
+			
+			private var transformGesture:TransformGesture;
+			
+			
+			override protected function onViewActivate():void
+			{
+				super.onViewActivate();
+				
+				transformGesture = new TransformGesture(image);
+				transformGesture.addEventListener(org.gestouch.events.TransformGestureEvent.GESTURE_TRANSFORM, onGesture);
+			}
+			
+			
+			override protected function onViewDeactivate():void
+			{
+				super.onViewDeactivate();
+				
+				if (transformGesture)
+				{
+					transformGesture.removeEventListener(org.gestouch.events.TransformGestureEvent.GESTURE_TRANSFORM, onGesture);
+					transformGesture.dispose();
+					transformGesture = null;
+				}
+			}
+			
+			
+			private function onGesture(event:org.gestouch.events.TransformGestureEvent):void
+			{
+				if (event.gestureState == GestureState.BEGAN || event.gestureState == GestureState.CHANGED)
+				{
+					var matrix:Matrix = image.transform.matrix;
+					
+					// Panning
+					matrix.translate(event.offsetX, event.offsetY);
+					
+					if (event.scaleX != 1 || event.rotation != 0)
+					{
+						// Scale and rotation.
+						// NB! event.localX and event.stageX actually represent previous
+						// location of the centroid (middle point between two fingers so you
+						// can easely perform these transformations without any additional transformations.
+						var transformPoint:Point = matrix.transformPoint(new Point(event.localX, event.localY));
+						matrix.translate(-transformPoint.x, -transformPoint.y);
+						matrix.rotate(event.rotation * GestureUtils.DEGREES_TO_RADIANS);
+						matrix.scale(event.scaleX, event.scaleY);
+						matrix.translate(transformPoint.x, transformPoint.y);
+					}
+					
+					image.transform.matrix = matrix;
+				}
+			}
+			
+			
+			private function centerImage():void
+			{
+				image.transform.matrix = new Matrix();
+				image.x = (width - image.width) >> 1;
+				image.y = (width - image.height) >> 1;
+			}
+		]]>
+	</fx:Script>
+	
+	<s:Image id="image"
+		source="@Embed(source='/../build/assets/images/placekitten-480-640.jpg')"
+		/>
+	
+</views:ExampleViewBase>

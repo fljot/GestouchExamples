@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<views:ExampleViewBase xmlns:fx="http://ns.adobe.com/mxml/2009"
+    xmlns:s="library://ns.adobe.com/flex/spark"
+	xmlns:mx="library://ns.adobe.com/flex/mx"
+	xmlns:views="org.gestouch.examples.views.*"
+	xmlns:controls="org.gestouch.examples.controls.*"
+	xmlns:containers="org.gestouch.examples.containers.*"
+	>
+	
+	<fx:Script>
+		<![CDATA[
+			import org.gestouch.events.PanGestureEvent;
+			import org.gestouch.gestures.PanGesture;
+			
+			
+			private var pan:PanGesture;
+			
+			
+			override protected function init():void
+			{
+				super.init();				
+			}
+			
+			
+			override protected function onViewActivate():void
+			{
+				super.onViewActivate();
+								
+				pan = new PanGesture(image);
+				pan.maxNumTouchesRequired = 2;
+				pan.addEventListener(PanGestureEvent.GESTURE_PAN, onPan);
+				
+				slopSlider.value = pan.slop;
+				minNumTouchesSlider.value = pan.minNumTouchesRequired;
+				maxNumTouchesSlider.value = pan.maxNumTouchesRequired;
+			}
+			
+			
+			override protected function onViewDeactivate():void
+			{
+				super.onViewDeactivate();
+				
+				if (pan)
+				{
+					pan.removeEventListener(PanGestureEvent.GESTURE_PAN, onPan);
+					pan.dispose();
+					pan = null;
+				}
+			}
+			
+			
+			private function onPan(event:PanGestureEvent):void
+			{
+				if (event.offsetX != 0 || event.offsetY != 0)
+				{
+					image.move(image.x + event.offsetX, image.y + event.offsetY);
+				}
+			}
+			
+			
+			private function onSlopSliderChange(event:Event):void
+			{
+				pan.slop = slopSlider.value;
+			}
+			
+			
+			private function onMinNumTouchesSliderChange(event:Event):void
+			{
+				pan.minNumTouchesRequired = minNumTouchesSlider.value;
+			}
+			
+			
+			private function onMaxNumTouchesSliderChange(event:Event):void
+			{
+				pan.maxNumTouchesRequired = maxNumTouchesSlider.value;
+			}
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		<containers:SettingsPanel id="settings">
+			<s:Label text="slop"/>
+			<s:HSlider id="slopSlider"
+				minimum="0" maximum="50" stepSize="1" dataTipPrecision="0"
+				change="onSlopSliderChange(event)"/>
+			
+			<s:Label text="minNumTouchesRequired"/>
+			<s:HSlider id="minNumTouchesSlider"
+				minimum="1" maximum="4" stepSize="1" dataTipPrecision="0"
+				change="onMinNumTouchesSliderChange(event)"/>
+			
+			<s:Label text="maxNumTouchesRequired"/>
+			<s:HSlider id="maxNumTouchesSlider"
+				minimum="1" maximum="4" stepSize="1" dataTipPrecision="0"
+				change="onMaxNumTouchesSliderChange(event)"/>
+		</containers:SettingsPanel>
+	</fx:Declarations>
+	
+	<s:Image id="image"
+		source="@Embed(source='/../build/assets/images/placekitten-480-640.jpg')"
+		horizontalCenter="0" verticalCenter="0"
+		/>
+	
+</views:ExampleViewBase>

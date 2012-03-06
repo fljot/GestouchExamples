@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<views:ExampleViewBase xmlns:fx="http://ns.adobe.com/mxml/2009"
+    xmlns:s="library://ns.adobe.com/flex/spark"
+	xmlns:mx="library://ns.adobe.com/flex/mx"
+	xmlns:views="org.gestouch.examples.views.*"
+	xmlns:controls="org.gestouch.examples.controls.*"
+	xmlns:containers="org.gestouch.examples.containers.*"
+	creationComplete="centerImage()"
+	resize="centerImage()"
+	>
+	
+	<fx:Script>
+		<![CDATA[
+			import org.gestouch.events.ZoomGestureEvent;
+			import org.gestouch.gestures.ZoomGesture;
+			
+			
+			private var zoom:ZoomGesture;
+			
+			
+			override protected function onViewActivate():void
+			{
+				super.onViewActivate();
+				
+				zoom = new ZoomGesture(image);
+				zoom.addEventListener(ZoomGestureEvent.GESTURE_ZOOM, onGesture);
+			}
+			
+			
+			override protected function onViewDeactivate():void
+			{
+				super.onViewDeactivate();
+				
+				if (zoom)
+				{
+					zoom.removeEventListener(ZoomGestureEvent.GESTURE_ZOOM, onGesture);
+					zoom.dispose();
+					zoom = null;
+				}
+			}
+			
+			
+			private function onGesture(event:ZoomGestureEvent):void
+			{
+//				var loc:Point = globalToLocal(zoom.location);
+				
+				if (event.scaleX != 1 || event.scaleY)
+				{			
+					var matrix:Matrix = image.transform.matrix;
+					var transformPoint:Point = matrix.transformPoint(new Point(event.localX, event.localY));
+					matrix.translate(-transformPoint.x, -transformPoint.y);
+					matrix.scale(event.scaleX, event.scaleY);
+					matrix.translate(transformPoint.x, transformPoint.y);
+					image.transform.matrix = matrix;
+				}
+			}
+			
+			
+			private function centerImage():void
+			{
+				image.transform.matrix = new Matrix();
+				image.x = (width - image.width) >> 1;
+				image.y = (width - image.height) >> 1;
+			}
+		]]>
+	</fx:Script>
+	
+	<s:Image id="image"
+		source="@Embed(source='/../build/assets/images/placekitten-400-600.jpg')"
+		/>
+	
+</views:ExampleViewBase>

@@ -1,28 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <s:ViewNavigatorApplication xmlns:fx="http://ns.adobe.com/mxml/2009"
-                            xmlns:s="library://ns.adobe.com/flex/spark"
-                            splashScreenImage="@Embed('/assets/images/Splashscreen.png')"
-   							splashScreenScaleMode="letterbox"
-   							splashScreenMinimumDisplayTime="2000"
-                        	firstView="org.gestouch.examples.views.GestouchExamplesHomeView"
-                        	frameRate="40"
-                        	initialize="init()"
-                        	applicationComplete="onComplete()"
-							>
-	<fx:Style>
-		Alert {
-			textAlign: left;
-			modalTransparency: 0.5;
-			modalTransparencyBlur: 8;
-		}
-	</fx:Style>
+	xmlns:s="library://ns.adobe.com/flex/spark"
+	splashScreenImage="@Embed('/assets/images/Splashscreen.png')"
+	splashScreenScaleMode="letterbox"
+	splashScreenMinimumDisplayTime="1000"
+	firstView="org.gestouch.examples.views.GestouchExamplesHomeView"
+	frameRate="60"
+	initialize="init()"
+	>
+	
 	<fx:Script>
 		<![CDATA[
-			import com.demonsters.debugger.MonsterDebugger;
-
 			import org.gestouch.examples.model.ExamplesModel;
 
-			import mx.controls.Alert;
 			
 			private var model:ExamplesModel = new ExamplesModel();
 			
@@ -31,22 +21,6 @@
 			{
 				navigator.firstViewData = model;
 			}
-			
-			
-			private function onComplete():void
-			{
-				MonsterDebugger.initialize(this, "192.168.0.100", onConnect);
-			}
-			
-			
-			private function onConnect():void
-			{
-				Alert.show("MonsterDebugger connected!");
-			}
-			
 		]]>
 	</fx:Script>
-	<fx:Declarations>
-		<!-- Place non-visual elements (e.g., services, value objects) here -->
-	</fx:Declarations>
 </s:ViewNavigatorApplication>

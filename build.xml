@@ -14,35 +14,23 @@
 	
 	<target name="usage">
 		<echo>Usage:
-- Use debug.GestouchExamples task to compile and run example application.
-- Use package.ipa task to compile for iOS device. Default example name to compile is GestouchExamples (just hit enter when input required).
-- Use package.apk task to compile for Android device. Default example name to compile is GestouchExamples (just hit enter when input required).
+- Use debug.air task to compile and run example application on desktop.
+- Use debug.apk task to compile &amp; run (debug) on Android device.
+- Use package.ipa task to compile for iOS device.
 		</echo>
 	</target>
 	
-	<target name="debug.LongPressGestureExample" description="">
-		<compile.example exampleName="LongPressGestureExample" openSWF="true" />
-	</target>
-	
-	<target name="debug.DoubleTapGestureExample" description="">
-		<compile.example exampleName="DoubleTapGestureExample" openSWF="true" />
-	</target>
-	
-	<target name="debug.SwipeGestureExample" description="">
-		<compile.example exampleName="SwipeGestureExample" openSWF="true" />
-	</target>
-	
-	<target name="debug.GestouchExamples" description="">
+	<target name="debug.air" description="">
 		<var name="example.name" value="GestouchExamples"/>
 		<compile.debug input="${project.examplesPackage.dir}/${example.name}.mxml"
 			output="${example.name}.swf"
 			compilerArguments=""
 		/>
-		<copy file="${build.dir}/iOS/descriptor-template-ipa.xml" tofile="${bindebug.dir}/${example.name}-ipa.xml" overwrite="true">
+		<copy file="${build.dir}/air/descriptor-template-app.xml" tofile="${bindebug.dir}/${example.name}-app.xml" overwrite="true">
 			<filterset>
 				<filter token="ID" value="com.velvet.PankTest" />
 				<filter token="FILENAME" value="${example.name}" />
-				<filter token="VERSION" value="0.1" />
+				<filter token="VERSION" value="0.2" />
 				<filter token="CONTENT" value="${example.name}.swf" />
             </filterset>
 		</copy>
@@ -51,29 +39,19 @@
 		<antcall target="ide.startProfiler" />
 		-->
 		<exec executable="${flexSDK.adl}">
-			<arg value="${bindebug.dir}/${example.name}-ipa.xml" />
+			<arg value="${bindebug.dir}/${example.name}-app.xml" />
 			<arg value="${bindebug.dir}" />
 		</exec>
 	</target>
 	
 	
 	<target name="package.ipa" description="" depends="ide.resetCompiler">
-		<input message="Example name to compile (eg: SwipeGestureExample):"
-			addproperty="example.name"
-			defaultvalue="GestouchExamples"/>
+		<var name="example.name" value="GestouchExamples" />		
 		
-		<if>
-			<equals arg1="${example.name}" arg2="GestouchExamples"/>
-			<then>
-				<compile.debug input="${project.examplesPackage.dir}/${example.name}.mxml"
-					output="${example.name}.swf"
-					compilerArguments=""
-				/>
-			</then>
-			<else>
-				<compile.example exampleName="${example.name}"/>
-			</else>
-		</if>
+		<compile.debug input="${project.examplesPackage.dir}/${example.name}.mxml"
+			output="${example.name}.swf"
+			compilerArguments=""
+		/>
 		
 		<if>
 			<equals arg1="${project.ios.certificate.password}" arg2=""/>
@@ -116,23 +94,13 @@
 	</target>
 	
 	
-	<target name="package.apk" description="" depends="ide.resetCompiler">
-		<input message="Example name to compile (eg: SwipeGestureExample):"
-			addproperty="example.name"
-			defaultvalue="GestouchExamples"/>
+	<target name="debug.apk" description="" depends="ide.resetCompiler">
+		<var name="example.name" value="GestouchExamples" />
 		
-		<if>
-			<equals arg1="${example.name}" arg2="GestouchExamples"/>
-			<then>
-				<compile.debug input="${project.examplesPackage.dir}/${example.name}.mxml"
-					output="${example.name}.swf"
-					compilerArguments=""
-				/>
-			</then>
-			<else>
-				<compile.example exampleName="${example.name}"/>
-			</else>
-		</if>
+		<compile.debug input="${project.examplesPackage.dir}/${example.name}.mxml"
+			output="${example.name}.swf"
+			compilerArguments=""
+		/>
 		
 		<if>
 			<equals arg1="${project.android.certificate.password}" arg2=""/>
@@ -148,19 +116,23 @@
 		<var name="var.project.app.descriptor" value="${bindebug.dir}/${example.name}-apk.xml"/>
 		<copy file="${project.android.descriptor.template}" tofile="${var.project.app.descriptor}" overwrite="true">
 			<filterset>
-				<filter token="ID" value="${project.air.appID}" />
+				<filter token="ID" value="${project.android.appID}" />
 				<filter token="FILENAME" value="${example.name}" />
 				<filter token="VERSION" value="${project.version}" />
 				<filter token="CONTENT" value="${example.name}.swf" />
             </filterset>
 		</copy>
 		
+		<var name="var.debug.port" value="7935" />
+		
 		<java jar="${flexSDK.adt}" fork="true" failonerror="true">
 			<arg value="-package" />
 			
 			<arg value="-target" />
 			<arg value="apk-debug" />
-						
+			
+			<arg line="-listen ${var.debug.port}" />
+			
 			<arg value="-storetype" />
 			<arg value="pkcs12" />
 			<arg value="-keystore" />
@@ -173,7 +145,8 @@
 			<arg value="-C" />
 			<arg value="${bindebug.dir}" />
 			<arg value="${example.name}.swf" />
-		</java>
+		</java>		
+		
 		
 		<!-- Installing the published application on to the emulator -e for emulator, -d for device -->
 		<exec executable="${android.adb}">
@@ -182,13 +155,43 @@
 			<arg line="-r"/>
 			<arg line="${bindebug.dir}/${example.name}.apk"/>
 		</exec>
+		
+		<exec executable="${android.adb}" failonerror="true">
+			<arg line="forward tcp:${var.debug.port} tcp:${var.debug.port}"/>
+		</exec>
+		
+		<antcall target="ide.startDebugger">
+			<param name="asclient" value="true"/>
+			<param name="port" value="${var.debug.port}"/>
+		</antcall>
+		
+		<java jar="${flexSDK.adt}" fork="true" failonerror="true">
+			<arg value="-launchApp" />
+			
+			<arg value="-platform" />
+			<arg value="android" />
+			
+			<arg value="-platformsdk" />
+			<arg value="${androidSDK.dir}" />
+			
+			<arg value="-appid" />
+			<arg value="${project.android.appID}"/>
+		</java>
 	</target>
 	
 	<target name="ide.startDebugger" description="Starts IDE Debugger">
 		<if>
 			<equals arg1="${user.ide}" arg2="FDT4"/>
 			<then>
-				<fdt.startDebugger projectname="${project.name}" />
+				<if>
+					<isset property="port"/>
+					<then>
+						<fdt.startDebugger projectname="${project.name}" asclient="${asclient}" port="${port}" />
+					</then>
+					<else>
+						<fdt.startDebugger projectname="${project.name}"/>
+					</else>
+				</if>
 			</then>
 			<else>
 				<echo>ide.startDebugger task is available only for FDT4. TODO: tasks for other IDEs</echo>
@@ -212,7 +215,7 @@
 		<if>
 			<equals arg1="${user.ide}" arg2="FDT4"/>
 			<then>
-				<fdt.launch.resetFlexCompiler />
+				<!--<fdt.launch.resetFlexCompiler />-->
 			</then>
 			<else>
 				<echo>ide.resetCompiler task is available only for FDT4. TODO: tasks for other IDEs</echo>

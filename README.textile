@@ -15,10 +15,9 @@ Hint for compiling for iOS: do it through console interface (Terminal on MacOS) 
 ant package.ipa -Duser.ide=none
 
 
-h3. Code
+h3. Version & Dependency
 
-* "Gestouch Framework":http://github.com/fljot/Gestouch
-* "Gestouch Examples":http://github.com/fljot/GestouchExamples
+These examples work with Gestouch library of version > 0.2 (where the new architecture was introduced).
 
 
 h2. License
