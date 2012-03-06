@@ -11,22 +11,11 @@
 	
 	<fx:Script>
 		<![CDATA[
-			import com.greensock.plugins.GlowFilterPlugin;
-			import com.greensock.plugins.TweenPlugin;
-
 			import org.gestouch.events.ZoomGestureEvent;
 			import org.gestouch.gestures.ZoomGesture;
 			
 			
 			private var zoom:ZoomGesture;
-
-
-			override protected function init():void
-			{
-				super.init();
-				
-				TweenPlugin.activate([GlowFilterPlugin]);				
-			}
 			
 			
 			override protected function onViewActivate():void
@@ -55,7 +44,7 @@
 			{
 //				var loc:Point = globalToLocal(zoom.location);
 				
-				if (event.phase == GesturePhase.BEGIN || event.phase == GesturePhase.UPDATE)
+				if (event.scaleX != 1 || event.scaleY)
 				{			
 					var matrix:Matrix = image.transform.matrix;
 					var transformPoint:Point = matrix.transformPoint(new Point(event.localX, event.localY));

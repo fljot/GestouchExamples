@@ -1,5 +1,6 @@
 package org.gestouch.examples.model
 {
+	import org.gestouch.examples.views.TransformGestureView;
 	import org.gestouch.examples.views.ConflictGesturesView;
 	import org.gestouch.examples.views.LongPressGestureAdvancedView;
 	import org.gestouch.examples.views.LongPressGestureView;
@@ -27,6 +28,7 @@ package org.gestouch.examples.model
 				,{label: "RotateGesture Basic Example", viewClass: RotateGestureView}
 				,{label: "ZoomGesture Basic Example", viewClass: ZoomGestureView}
 				,{label: "PanGesture Basic Example", viewClass: PanGestureView}
+				,{label: "TransformGesture (Free Transform) Example", viewClass: TransformGestureView}
 				,{label: "SwipeGesture Basic Example", viewClass: SwipeGestureView}
 				,{label: "Conflicts Resolution Example", viewClass: ConflictGesturesView}
 //				,{label: "Dependent Gestures Example", viewClass: DependentGesturesView}

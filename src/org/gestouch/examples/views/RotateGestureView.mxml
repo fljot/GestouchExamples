@@ -56,7 +56,7 @@
 			{
 				var loc:Point = globalToLocal(rotate.location);
 				
-				if (event.phase == GesturePhase.BEGIN || event.phase == GesturePhase.UPDATE)
+				if (event.rotation != 0)
 				{			
 					var matrix:Matrix = image.transform.matrix;
 					var transformPoint:Point = matrix.transformPoint(new Point(event.localX, event.localY));

@@ -13,6 +13,7 @@
 			import com.greensock.plugins.GlowFilterPlugin;
 			import com.greensock.plugins.TweenPlugin;
 
+			import org.gestouch.core.GestureState;
 			import org.gestouch.events.LongPressGestureEvent;
 			import org.gestouch.gestures.LongPressGesture;
 			
@@ -56,17 +57,17 @@
 			{
 				var loc:Point = globalToLocal(longPressGesture.location);
 				
-				if (event.phase == GesturePhase.BEGIN)
+				if (event.gestureState == GestureState.BEGAN)
 				{			
 					TweenMax.to(image, 0.5, {alpha: 0.5, glowFilter: {color: 0xEEEEEE * Math.random(), blurX: 16, blurY: 16, strength: 2, alpha: 1}});
 					fingerToImageOffset.x = image.x - loc.x;
 					fingerToImageOffset.y = image.y - loc.y;
 				}
-				else if (event.phase == GesturePhase.UPDATE)
+				else if (event.gestureState == GestureState.CHANGED)
 				{
 					image.move(fingerToImageOffset.x + loc.x, fingerToImageOffset.y + loc.y);
 				}
-				else if (event.phase == GesturePhase.END)
+				else if (event.gestureState == GestureState.ENDED)
 				{
 					TweenMax.to(image, 1, {alpha: 1, glowFilter: {alpha: 0, remove: true}});
 				}

@@ -9,19 +9,8 @@
 	
 	<fx:Script>
 		<![CDATA[
-			import spark.components.supportClasses.SliderBase;
 			import org.gestouch.events.PanGestureEvent;
 			import org.gestouch.gestures.PanGesture;
-			import com.greensock.plugins.GlowFilterPlugin;
-			import com.greensock.plugins.TweenPlugin;
-
-			import org.gestouch.core.Touch;
-			import org.gestouch.events.RotateGestureEvent;
-			import org.gestouch.events.ZoomGestureEvent;
-			import org.gestouch.gestures.Gesture;
-			import org.gestouch.gestures.RotateGesture;
-			import org.gestouch.gestures.ZoomGesture;
-			import org.gestouch.utils.GestureUtils;
 			
 			
 			private var pan:PanGesture;

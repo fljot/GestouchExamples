@@ -13,6 +13,7 @@
 			import com.greensock.plugins.GlowFilterPlugin;
 			import com.greensock.plugins.TweenPlugin;
 
+			import org.gestouch.core.GestureState;
 			import org.gestouch.events.LongPressGestureEvent;
 			import org.gestouch.gestures.LongPressGesture;
 			
@@ -56,7 +57,7 @@
 
 			private function onGesture(event:LongPressGestureEvent):void
 			{
-				if (event.phase == GesturePhase.BEGIN)
+				if (event.gestureState == GestureState.BEGAN)
 				{
 					TweenMax.fromTo(button, 1,
 						{glowFilter: {color: 0xCCCCCC * Math.random(), blurX: 64, blurY: 64, strength: 3, alpha: 1, quality: 1}},

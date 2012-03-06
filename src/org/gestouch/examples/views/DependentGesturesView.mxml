@@ -10,8 +10,6 @@
 	<fx:Script>
 		<![CDATA[
 			import com.greensock.TweenMax;
-			import com.greensock.plugins.GlowFilterPlugin;
-			import com.greensock.plugins.TweenPlugin;
 
 			import org.gestouch.events.TapGestureEvent;
 			import org.gestouch.gestures.TapGesture;
@@ -19,14 +17,6 @@
 			
 			private var singleTapGesture:TapGesture;
 			private var doubleTapGesture:TapGesture;
-
-
-			override protected function init():void
-			{
-				super.init();
-				
-				TweenPlugin.activate([GlowFilterPlugin]);				
-			}
 			
 			
 			override protected function onViewActivate():void

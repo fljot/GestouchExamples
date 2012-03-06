@@ -70,7 +70,7 @@
 			}
 			
 
-			private function onGesture(event:TransformGestureEvent):void
+			private function onGesture(event:SwipeGestureEvent):void
 			{
 				arrow.scaleX = (event.offsetX < 0 && event.offsetY == 0 ? -1 : 1) * Math.abs(arrow.scaleX);
 				var angle:int = 0;//event.offsetX == 0 ? (event.offsetY > 0 ? 90 : -90) : Math.atan(event.offsetY / event.offsetX) * 180 / Math.PI;
@@ -80,6 +80,13 @@
 				}
 				arrow.rotation = angle;
 				TweenMax.fromTo(arrow, 2, {alpha: 1}, {alpha: 0, ease: Sine.easeIn});
+			}
+			
+			
+			private function onNativeGesture(event:TransformGestureEvent):void
+			{
+				onGesture(new SwipeGestureEvent(SwipeGestureEvent.GESTURE_SWIPE, false, false, GestureState.RECOGNIZED,
+					event.stageX, event.stageY, event.localX, event.localY, event.offsetX, event.offsetY));
 			}
 			
 			
@@ -147,12 +154,12 @@
 				if (nativeGestureCheckBox.selected)
 				{
 					Multitouch.inputMode = MultitouchInputMode.GESTURE;
-					addEventListener(TransformGestureEvent.GESTURE_SWIPE, onGesture);
+					addEventListener(TransformGestureEvent.GESTURE_SWIPE, onNativeGesture);
 				}
 				else
 				{
 					Multitouch.inputMode = MultitouchInputMode.TOUCH_POINT;
-					removeEventListener(TransformGestureEvent.GESTURE_SWIPE, onGesture);
+					removeEventListener(TransformGestureEvent.GESTURE_SWIPE, onNativeGesture);
 				}
 			}
 		]]>

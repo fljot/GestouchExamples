@@ -11,6 +11,7 @@
 	
 	<fx:Script>
 		<![CDATA[
+			import org.gestouch.core.GestureState;
 			import org.gestouch.core.Touch;
 			import org.gestouch.events.PanGestureEvent;
 			import org.gestouch.events.RotateGestureEvent;
@@ -109,7 +110,7 @@
 				var gesture:PanGesture = event.target as PanGesture;
 				var target:UIComponent = gesture.target as UIComponent;
 				
-				if (event.phase == GesturePhase.BEGIN || event.phase == GesturePhase.UPDATE)
+				if (event.gestureState == GestureState.BEGAN || event.gestureState == GestureState.CHANGED)
 				{
 					target.move(target.x + event.offsetX, target.y + event.offsetY);
 				}
@@ -121,10 +122,10 @@
 				var gesture:ZoomGesture = event.target as ZoomGesture;
 				var target:UIComponent = gesture.target as UIComponent;
 				
-				if (event.phase == GesturePhase.BEGIN || event.phase == GesturePhase.UPDATE)
+				if (event.scaleX != 1 || event.scaleY != 1)
 				{
 					var matrix:Matrix = target.transform.matrix;
-					var transformPoint:Point = matrix.transformPoint(new Point(event.localX, event.localY));
+					var transformPoint:Point = matrix.transformPoint(target.globalToLocal(gesture.location));
 					matrix.translate(-transformPoint.x, -transformPoint.y);
 					matrix.scale(event.scaleX, event.scaleY);
 					matrix.translate(transformPoint.x, transformPoint.y);
@@ -138,10 +139,10 @@
 				var gesture:RotateGesture = event.target as RotateGesture;
 				var target:UIComponent = gesture.target as UIComponent;
 				
-				if (event.phase == GesturePhase.BEGIN || event.phase == GesturePhase.UPDATE)
+				if (event.rotation != 0)
 				{
 					var matrix:Matrix = target.transform.matrix;
-					var transformPoint:Point = matrix.transformPoint(new Point(event.localX, event.localY));
+					var transformPoint:Point = matrix.transformPoint(target.globalToLocal(gesture.location));
 					matrix.translate(-transformPoint.x, -transformPoint.y);
 					matrix.rotate(event.rotation * GestureUtils.DEGREES_TO_RADIANS);
 					matrix.translate(transformPoint.x, transformPoint.y);
