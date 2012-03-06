@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?>
+<views:ExampleViewBase xmlns:fx="http://ns.adobe.com/mxml/2009"
+    xmlns:s="library://ns.adobe.com/flex/spark"
+	xmlns:mx="library://ns.adobe.com/flex/mx"
+	xmlns:views="org.gestouch.examples.views.*"
+	xmlns:controls="org.gestouch.examples.controls.*"
+	xmlns:containers="org.gestouch.examples.containers.*"
+	implements="org.gestouch.core.IGestureDelegate"
+	>
+	
+	<fx:Script>
+		<![CDATA[
+			import com.greensock.TweenMax;
+			import org.gestouch.core.Touch;
+			import org.gestouch.events.PanGestureEvent;
+			import org.gestouch.events.SwipeGestureEvent;
+			import org.gestouch.gestures.Gesture;
+			import org.gestouch.gestures.PanGesture;
+			import org.gestouch.gestures.SwipeGesture;
+			import org.gestouch.gestures.SwipeGestureDirection;
+			
+			
+			private var fillBitmapData:BitmapData;
+			private var fillOffsetMatrix:Matrix = new Matrix();
+			
+			private var pan:PanGesture;
+			private var swipe:SwipeGesture;
+			
+			
+			//----------------------------------
+			//  Begin of IGestureDelegate implementation
+			//----------------------------------
+			public function gestureShouldReceiveTouch(gesture:Gesture, touch:Touch):Boolean
+			{
+				trace(touch.location.x, width / 3);
+				if (gesture == swipe && touch.location.x > width / 3)
+				{
+					return false;
+				}
+				return true;
+			}
+
+
+			public function gestureShouldBegin(gesture:Gesture):Boolean
+			{
+				return true;
+			}
+
+
+			public function gesturesShouldRecognizeSimultaneously(gesture:Gesture, otherGesture:Gesture):Boolean
+			{
+				return false;
+			}
+			//----------------------------------
+			//  End of IGestureDelegate implementation
+			//----------------------------------
+			
+			
+				
+			override protected function init():void
+			{
+				super.init();
+				
+				var bmd:BitmapData = new BitmapData(4, 4, false, 0xEEEEEE);
+				var color:uint = 0xCCCCCC;
+				bmd.setPixel(0, 0, color);
+				bmd.setPixel(3, 1, color);
+				bmd.setPixel(2, 2, color);
+				bmd.setPixel(1, 3, color);
+				
+				fillBitmapData = new BitmapData(bmd.width * 10, bmd.height * 10);
+				fillBitmapData.draw(bmd, new Matrix(10, 0, 0, 10));
+			}
+			
+				
+			override protected function onResize(width:Number, height:Number):void
+			{
+				super.onResize(width, height);
+				
+				fillOffsetMatrix.tx = fillOffsetMatrix.ty = 0;
+				updateFill();
+			}
+			
+			
+			override protected function onViewActivate():void
+			{
+				super.onViewActivate();
+				
+				pan = new PanGesture(this);
+				pan.addEventListener(PanGestureEvent.GESTURE_PAN, onPan);
+				pan.slop = 0;
+				
+				swipe = new SwipeGesture(this);
+				swipe.addEventListener(SwipeGestureEvent.GESTURE_SWIPE, onSwipe);
+				swipe.direction = SwipeGestureDirection.RIGHT;
+				swipe.delegate = this;
+				
+				pan.requireGestureToFail(swipe);//NB! this is weak reference
+			}
+			
+			
+			override protected function onViewDeactivate():void
+			{
+				super.onViewDeactivate();
+				
+				if (pan)
+				{
+					pan.removeEventListener(PanGestureEvent.GESTURE_PAN, onPan);
+					pan.dispose();
+					pan = null;
+				}
+				if (swipe)
+				{
+					swipe.removeEventListener(SwipeGestureEvent.GESTURE_SWIPE, onSwipe);
+					swipe.dispose();
+					swipe = null;
+				}
+			}
+			
+			
+			private function updateFill():void
+			{
+				var g:Graphics = scroller.graphics;
+				g.clear();
+				g.beginBitmapFill(fillBitmapData, fillOffsetMatrix);
+				g.drawRect(0, 0, scroller.width, scroller.height);
+				g.endFill();
+			}
+			
+
+			private function onPan(event:PanGestureEvent):void
+			{
+				trace("pan", event.gestureState);
+				fillOffsetMatrix.translate(event.offsetX, event.offsetY);
+				updateFill();
+			}
+			
+			
+			private function onSwipe(event:SwipeGestureEvent):void
+			{
+				trace("swipe");
+				TweenMax.to(menu, 1, {bezierThrough:[{scaleX:2}, {scaleX:1}]}); 
+			}
+		]]>
+	</fx:Script>
+	
+	<s:SpriteVisualElement id="scroller" mouseEnabled="false" mouseChildren="false"
+		width="100%" height="100%"
+	/>
+
+	<s:Graphic>
+		<s:Rect id="menu" width="{width / 3}" height="{height}">
+			<s:fill>
+				<s:SolidColor color="0x000000" alpha="0.1" />
+			</s:fill>
+		</s:Rect>
+	</s:Graphic>
+		
+	
+	<s:Label top="10" text="Swipe to right on the left edge" />
+	<s:Label top="30" left="{width/3 + 10}" text="Pan anywhere" />
+	
+</views:ExampleViewBase>

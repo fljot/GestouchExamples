@@ -28,6 +28,9 @@
 				
 				doubleTapGesture = new TapGesture(button);
 				doubleTapGesture.addEventListener(TapGestureEvent.GESTURE_TAP, onGesture);
+				// probably you want to set a bit smaller value for maxTapDelay
+				// so double tap will fail a bit more quickly. default is 400ms
+				doubleTapGesture.maxTapDelay = 300;
 				doubleTapGesture.numTapsRequired = 2;
 				
 				singleTapGesture.requireGestureToFail(doubleTapGesture);
