@@ -11,6 +11,7 @@
 	<fx:Script>
 		<![CDATA[
 			import com.greensock.TweenMax;
+			import org.gestouch.core.DisplayObjectAdapter;
 			import org.gestouch.core.Touch;
 			import org.gestouch.events.PanGestureEvent;
 			import org.gestouch.events.SwipeGestureEvent;
@@ -18,6 +19,7 @@
 			import org.gestouch.gestures.PanGesture;
 			import org.gestouch.gestures.SwipeGesture;
 			import org.gestouch.gestures.SwipeGestureDirection;
+
 			
 			
 			private var fillBitmapData:BitmapData;
@@ -86,11 +88,11 @@
 			{
 				super.onViewActivate();
 				
-				pan = new PanGesture(this);
+				pan = new PanGesture(new DisplayObjectAdapter(this));
 				pan.addEventListener(PanGestureEvent.GESTURE_PAN, onPan);
 				pan.slop = 0;
 				
-				swipe = new SwipeGesture(this);
+				swipe = new SwipeGesture(new DisplayObjectAdapter(this));
 				swipe.addEventListener(SwipeGestureEvent.GESTURE_SWIPE, onSwipe);
 				swipe.direction = SwipeGestureDirection.RIGHT;
 				swipe.delegate = this;

@@ -11,6 +11,9 @@
 	
 	<fx:Script>
 		<![CDATA[
+			import mx.core.FlexGlobals;
+			import mx.core.UIComponent;
+			import org.gestouch.core.DisplayObjectAdapter;
 			import org.gestouch.core.GestureState;
 			import org.gestouch.core.Touch;
 			import org.gestouch.events.PanGestureEvent;
@@ -22,8 +25,6 @@
 			import org.gestouch.gestures.ZoomGesture;
 			import org.gestouch.utils.GestureUtils;
 
-			import mx.core.FlexGlobals;
-			import mx.core.UIComponent;
 
 
 			private var gestures:Vector.<Gesture> = new Vector.<Gesture>();
@@ -81,18 +82,18 @@
 			
 			private function addGestureToTarget(target:InteractiveObject):void
 			{
-				var pan:PanGesture = new PanGesture(target);
+				var pan:PanGesture = new PanGesture(new DisplayObjectAdapter(target));
 				pan.maxNumTouchesRequired = 2;
 				pan.delegate = this;
 				pan.addEventListener(PanGestureEvent.GESTURE_PAN, onPan);
 				gestures.push(pan);
 
-				var zoom:ZoomGesture = new ZoomGesture(target);
+				var zoom:ZoomGesture = new ZoomGesture(new DisplayObjectAdapter(target));
 				zoom.addEventListener(ZoomGestureEvent.GESTURE_ZOOM, onZoom);
 				zoom.delegate = this;
 				gestures.push(zoom);
 				
-				var rotate:RotateGesture = new RotateGesture(target);
+				var rotate:RotateGesture = new RotateGesture(new DisplayObjectAdapter(target));
 				rotate.delegate = this;
 				rotate.addEventListener(RotateGestureEvent.GESTURE_ROTATE, onRotate);
 				gestures.push(rotate);

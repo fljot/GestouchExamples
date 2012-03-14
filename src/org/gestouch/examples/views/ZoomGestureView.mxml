@@ -11,6 +11,7 @@
 	
 	<fx:Script>
 		<![CDATA[
+			import org.gestouch.core.DisplayObjectAdapter;
 			import org.gestouch.events.ZoomGestureEvent;
 			import org.gestouch.gestures.ZoomGesture;
 			
@@ -22,7 +23,7 @@
 			{
 				super.onViewActivate();
 				
-				zoom = new ZoomGesture(image);
+				zoom = new ZoomGesture(new DisplayObjectAdapter(image));
 				zoom.addEventListener(ZoomGestureEvent.GESTURE_ZOOM, onGesture);
 			}
 			

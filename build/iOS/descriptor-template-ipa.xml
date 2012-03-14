@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<application xmlns="http://ns.adobe.com/air/application/2.6">
+<application xmlns="http://ns.adobe.com/air/application/3.2">
 
 <!-- Adobe AIR Application Descriptor File Template.
 
@@ -88,20 +88,19 @@
 		<!-- <maxSize></maxSize> -->
 
         <!-- The initial aspect ratio of the app when launched (either "portrait" or "landscape"). Optional. Mobile only. Default is the natural orientation of the device -->
-
         <!-- <aspectRatio></aspectRatio> -->
 
         <!-- Whether the app will begin auto-orienting on launch. Optional. Mobile only. Default false -->
-
         <autoOrients>true</autoOrients>
 
         <!-- Whether the app launches in full screen. Optional. Mobile only. Default false -->
-
         <fullScreen>true</fullScreen>
 
         <!-- The render mode for the app (either auto, cpu, or gpu). Optional. Mobile only. Default auto -->
+        <renderMode>direct</renderMode>
 
-        <!-- <renderMode></renderMode> -->
+        <!-- Whether the default direct mode rendering context allocates storage for depth and stencil buffers.  Optional.  Default false. -->
+        <depthAndStencil>false</depthAndStencil>
 
 		<!-- Whether or not to pan when a soft keyboard is raised or lowered (either "pan" or "none").  Optional.  Defaults "pan." -->
 		<!-- <softKeyboardBehavior></softKeyboardBehavior> -->

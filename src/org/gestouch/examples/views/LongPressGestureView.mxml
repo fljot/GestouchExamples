@@ -12,10 +12,11 @@
 			import com.greensock.TweenMax;
 			import com.greensock.plugins.GlowFilterPlugin;
 			import com.greensock.plugins.TweenPlugin;
-
+			import org.gestouch.core.DisplayObjectAdapter;
 			import org.gestouch.core.GestureState;
 			import org.gestouch.events.LongPressGestureEvent;
 			import org.gestouch.gestures.LongPressGesture;
+
 			
 			
 			private var longPressGesture:LongPressGesture;
@@ -33,7 +34,7 @@
 			{
 				super.onViewActivate();
 				
-				longPressGesture = new LongPressGesture(button);
+				longPressGesture = new LongPressGesture(new DisplayObjectAdapter(button));
 				longPressGesture.addEventListener(LongPressGestureEvent.GESTURE_LONG_PRESS, onGesture);
 				
 				slopSlider.value = longPressGesture.slop;

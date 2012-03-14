@@ -12,9 +12,10 @@
 			import com.greensock.TweenMax;
 			import com.greensock.plugins.GlowFilterPlugin;
 			import com.greensock.plugins.TweenPlugin;
-
+			import org.gestouch.core.DisplayObjectAdapter;
 			import org.gestouch.events.TapGestureEvent;
 			import org.gestouch.gestures.TapGesture;
+
 			
 			
 			private var tapGesture:TapGesture;
@@ -32,8 +33,8 @@
 			{
 				super.onViewActivate();
 				
-				tapGesture = new TapGesture(button);
-				tapGesture.addEventListener(TapGestureEvent.GESTURE_TAP, onGesture);
+				tapGesture = new TapGesture(new DisplayObjectAdapter(button));
+				tapGesture.addEventListener(TapGestureEvent.GESTURE_TAP, onGesture, false, 0, true);
 				
 				slopSlider.value = tapGesture.slop;
 				touchesSlider.value = tapGesture.numTouchesRequired;
@@ -47,6 +48,7 @@
 			{
 				super.onViewDeactivate();
 				
+				// It is strongly recommended to remove listeners and dispose gesture instance manually
 				if (tapGesture)
 				{
 					tapGesture.removeEventListener(TapGestureEvent.GESTURE_TAP, onGesture);

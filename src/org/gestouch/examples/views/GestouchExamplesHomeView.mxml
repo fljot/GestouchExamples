@@ -29,7 +29,7 @@
 				debuggerButton = new Button();
 				debuggerButton.setStyle("icon", debuggerIconAsset);
 				debuggerButton.addEventListener(MouseEvent.CLICK, debuggerButton_clickHandler);
-				actionContent = [debuggerButton];
+//				actionContent = [debuggerButton];
 			}
 			
 			

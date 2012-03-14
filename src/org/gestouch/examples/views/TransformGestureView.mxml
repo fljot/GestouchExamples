@@ -11,6 +11,7 @@
 	
 	<fx:Script>
 		<![CDATA[
+			import org.gestouch.core.DisplayObjectAdapter;
 			import org.gestouch.core.GestureState;
 			import org.gestouch.events.TransformGestureEvent;
 			import org.gestouch.gestures.TransformGesture;
@@ -24,7 +25,7 @@
 			{
 				super.onViewActivate();
 				
-				transformGesture = new TransformGesture(image);
+				transformGesture = new TransformGesture(new DisplayObjectAdapter(image));
 				transformGesture.addEventListener(org.gestouch.events.TransformGestureEvent.GESTURE_TRANSFORM, onGesture);
 			}
 			
