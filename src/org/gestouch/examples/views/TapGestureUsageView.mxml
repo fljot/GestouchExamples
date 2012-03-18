@@ -12,10 +12,9 @@
 			import com.greensock.TweenMax;
 			import com.greensock.plugins.GlowFilterPlugin;
 			import com.greensock.plugins.TweenPlugin;
-			import org.gestouch.core.DisplayObjectAdapter;
+
 			import org.gestouch.events.TapGestureEvent;
 			import org.gestouch.gestures.TapGesture;
-
 			
 			
 			private var doubleTapGesture:TapGesture;
@@ -34,11 +33,11 @@
 			{
 				super.onViewActivate();
 				
-				doubleTapGesture = new TapGesture(new DisplayObjectAdapter(button));
+				doubleTapGesture = new TapGesture(button);
 				doubleTapGesture.numTapsRequired = 2;
 				doubleTapGesture.addEventListener(TapGestureEvent.GESTURE_TAP, onGesture);
 				
-				twoFingerTapGesture = new TapGesture(new DisplayObjectAdapter(button));
+				twoFingerTapGesture = new TapGesture(button);
 				twoFingerTapGesture.numTouchesRequired = 2;
 				twoFingerTapGesture.addEventListener(TapGestureEvent.GESTURE_TAP, onGesture);
 			}

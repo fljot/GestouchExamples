@@ -13,11 +13,10 @@
 		<![CDATA[
 			import com.greensock.plugins.GlowFilterPlugin;
 			import com.greensock.plugins.TweenPlugin;
-			import org.gestouch.core.DisplayObjectAdapter;
+
 			import org.gestouch.events.RotateGestureEvent;
 			import org.gestouch.gestures.RotateGesture;
 			import org.gestouch.utils.GestureUtils;
-
 			
 			
 			private var rotate:RotateGesture;
@@ -35,7 +34,7 @@
 			{
 				super.onViewActivate();
 				
-				rotate = new RotateGesture(new DisplayObjectAdapter(image));
+				rotate = new RotateGesture(image);
 				rotate.addEventListener(RotateGestureEvent.GESTURE_ROTATE, onGesture);
 			}
 			

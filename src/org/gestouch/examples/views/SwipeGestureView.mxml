@@ -9,16 +9,15 @@
 	
 	<fx:Script>
 		<![CDATA[
-			import com.greensock.TweenMax;
-			import com.greensock.easing.Sine;
-			import org.gestouch.core.DisplayObjectAdapter;
+			import org.gestouch.gestures.SwipeGestureDirection;
 			import org.gestouch.core.GestureState;
 			import org.gestouch.events.GestureStateEvent;
+			import com.greensock.TweenMax;
+			import com.greensock.easing.Sine;
+
 			import org.gestouch.events.SwipeGestureEvent;
 			import org.gestouch.examples.controls.ArrowShape;
 			import org.gestouch.gestures.SwipeGesture;
-			import org.gestouch.gestures.SwipeGestureDirection;
-
 			
 			
 			private var arrow:ArrowShape;
@@ -41,7 +40,7 @@
 			{
 				super.onViewActivate();
 				
-				swipe = new SwipeGesture(new DisplayObjectAdapter(this));
+				swipe = new SwipeGesture(this);
 				swipe.addEventListener(SwipeGestureEvent.GESTURE_SWIPE, onGesture);
 				swipe.addEventListener(GestureStateEvent.STATE_CHANGE, onGestureStateChange);
 				

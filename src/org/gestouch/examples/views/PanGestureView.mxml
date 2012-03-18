@@ -9,7 +9,6 @@
 	
 	<fx:Script>
 		<![CDATA[
-			import org.gestouch.core.DisplayObjectAdapter;
 			import org.gestouch.events.PanGestureEvent;
 			import org.gestouch.gestures.PanGesture;
 			
@@ -27,7 +26,7 @@
 			{
 				super.onViewActivate();
 								
-				pan = new PanGesture(new DisplayObjectAdapter(image));
+				pan = new PanGesture(image);
 				pan.maxNumTouchesRequired = 2;
 				pan.addEventListener(PanGestureEvent.GESTURE_PAN, onPan);
 				

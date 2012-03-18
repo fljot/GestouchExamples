@@ -10,10 +10,9 @@
 	<fx:Script>
 		<![CDATA[
 			import com.greensock.TweenMax;
-			import org.gestouch.core.DisplayObjectAdapter;
+
 			import org.gestouch.events.TapGestureEvent;
 			import org.gestouch.gestures.TapGesture;
-
 			
 			
 			private var singleTapGesture:TapGesture;
@@ -24,10 +23,10 @@
 			{
 				super.onViewActivate();
 				
-				singleTapGesture = new TapGesture(new DisplayObjectAdapter(button));
+				singleTapGesture = new TapGesture(button);
 				singleTapGesture.addEventListener(TapGestureEvent.GESTURE_TAP, onGesture);
 				
-				doubleTapGesture = new TapGesture(new DisplayObjectAdapter(button));
+				doubleTapGesture = new TapGesture(button);
 				doubleTapGesture.addEventListener(TapGestureEvent.GESTURE_TAP, onGesture);
 				// probably you want to set a bit smaller value for maxTapDelay
 				// so double tap will fail a bit more quickly. default is 400ms

@@ -1,24 +1,24 @@
 package org.gestouch.examples.starling
 {
-	import com.greensock.TweenMax;
-	import flash.geom.Matrix;
-	import flash.geom.Point;
-	import org.gestouch.core.GestureState;
-	import org.gestouch.core.IGestureDelegate;
-	import org.gestouch.core.Touch;
-	import org.gestouch.events.TapGestureEvent;
-	import org.gestouch.events.TransformGestureEvent;
-	import org.gestouch.extensions.starling.StarlingDisplayObjectAdapter;
-	import org.gestouch.gestures.Gesture;
-	import org.gestouch.gestures.TapGesture;
-	import org.gestouch.gestures.TransformGesture;
-	import org.gestouch.utils.GestureUtils;
 	import starling.display.DisplayObject;
 	import starling.display.Image;
 	import starling.display.Sprite;
 	import starling.textures.Texture;
 
+	import com.greensock.TweenMax;
 
+	import org.gestouch.core.GestureState;
+	import org.gestouch.core.IGestureDelegate;
+	import org.gestouch.core.Touch;
+	import org.gestouch.events.TapGestureEvent;
+	import org.gestouch.events.TransformGestureEvent;
+	import org.gestouch.gestures.Gesture;
+	import org.gestouch.gestures.TapGesture;
+	import org.gestouch.gestures.TransformGesture;
+	import org.gestouch.utils.GestureUtils;
+
+	import flash.geom.Matrix;
+	import flash.geom.Point;
 
 
 	/**
@@ -51,7 +51,7 @@ package org.gestouch.examples.starling
 			container = new Sprite();
 			addChild(container);
 			
-			var freeTransform:TransformGesture = new TransformGesture(new StarlingDisplayObjectAdapter(stage));
+			var freeTransform:TransformGesture = new TransformGesture(stage);
 			freeTransform.addEventListener(TransformGestureEvent.GESTURE_TRANSFORM, onTransform, false, 0, true);
 			freeTransform.delegate = this;
 			
@@ -76,10 +76,10 @@ package org.gestouch.examples.starling
 			var image:Image = new Image(texture);
 			image.width = image.height = Math.min(stage.stageWidth, stage.stageHeight) / 3;
 
-			var tap:TapGesture = new TapGesture(new StarlingDisplayObjectAdapter(image));
+			var tap:TapGesture = new TapGesture(image);
 			tap.addEventListener(TapGestureEvent.GESTURE_TAP, onTap, false, 0, true);
 
-			var freeTransform:TransformGesture = new TransformGesture(new StarlingDisplayObjectAdapter(image));
+			var freeTransform:TransformGesture = new TransformGesture(image);
 			freeTransform.addEventListener(TransformGestureEvent.GESTURE_TRANSFORM, onTransform, false, 0, true);
 			freeTransform.delegate = this;
 			
