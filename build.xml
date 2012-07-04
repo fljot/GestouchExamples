@@ -225,26 +225,11 @@
 	
 	<!-- Hidden targets and macro definitions-->
 	
-	<macrodef name="compile.example">
-		<attribute name="exampleName" />
-		<attribute name="compilerArguments" default="" />
-		<attribute name="air" default="true" />
-		<attribute name="openSWF" default="false" />
-		<sequential>
-			<compile.debug input="${project.examplesPackage.dir}/@{exampleName}.as"
-				output="@{exampleName}.swf"
-				compilerArguments="@{compilerArguments}"
-				air="@{air}"
-				openSWF="@{openSWF}"
-			/>
-		</sequential>
-	</macrodef>	
-	
 	<macrodef name="compile.debug">
 		<attribute name="input" />
 		<attribute name="output" />
-		<attribute name="air" default="true" />
 		<attribute name="compilerArguments" default="" />
+		<attribute name="air" default="true" />
 		<attribute name="openSWF" default="false" />
 		<sequential>
 			<var name="var.compilerArguments" value="${project.baseCompilerArguments} ${project.debugCompilerArguments} @{compilerArguments}" />
@@ -256,7 +241,7 @@
 			</if>
 			
 			<if>
-				<equals arg1="${user.ide}" arg2="FDT4"/>
+				<equals arg1="${user.ide}" arg2="FDT4_foobar"/>
 				<then>
 					<fdt.launch.application projectname="${project.name}"
 						compilerarguments="${var.compilerArguments}"
