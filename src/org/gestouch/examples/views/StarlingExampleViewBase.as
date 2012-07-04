@@ -1,15 +1,14 @@
 package org.gestouch.examples.views
 {
-	import flash.geom.Rectangle;
-	import org.gestouch.core.GesturesManager;
-	import org.gestouch.core.IGesturesManager;
-	import org.gestouch.extensions.starling.StarlingDisplayListAdapter;
-	import org.gestouch.extensions.starling.StarlingInputAdapter;
 	import starling.core.Starling;
 	import starling.display.DisplayObject;
 	import starling.events.ResizeEvent;
 
-
+	import org.gestouch.core.Gestouch;
+	import org.gestouch.examples.starling.StarlingExampleBase;
+	import org.gestouch.extensions.starling.StarlingDisplayListAdapter;
+	import org.gestouch.extensions.starling.StarlingTouchHitTester;
+	import org.gestouch.input.NativeInputAdapter;
 
 
 	/**
@@ -18,8 +17,7 @@ package org.gestouch.examples.views
 	public class StarlingExampleViewBase extends ExampleViewBase
 	{
 		protected var starling:Starling;
-		protected var starlingMainClass:Class;
-		private var starlingInputAdapter:StarlingInputAdapter;
+		private var starlingTouchHitTester:StarlingTouchHitTester;
 		
 		{
 			initStarlingAndGestouchForStarling();
@@ -37,8 +35,7 @@ package org.gestouch.examples.views
 			Starling.multitouchEnabled = true; // useful on mobile devices
             Starling.handleLostContext = true; // deactivate on mobile devices (to save memory)
             
-			var gesturesManager:IGesturesManager = GesturesManager.getInstance();
-			gesturesManager.addDisplayListAdapter(starling.display.DisplayObject, new StarlingDisplayListAdapter());
+			Gestouch.addDisplayListAdapter(starling.display.DisplayObject, new StarlingDisplayListAdapter());
 		}
 		
 			
@@ -46,15 +43,20 @@ package org.gestouch.examples.views
 		{
 			super.init();
 			
+			var starlingMainClass:Class = data.starlingMainClass as Class;
+			
 			starling = new Starling(starlingMainClass, stage);
-			starling.enableErrorChecking = false;
-			starling.stage.addEventListener(ResizeEvent.RESIZE, starling_resizeHandler);
+			starling.enableErrorChecking = true;
+			starling.stage.color = 0xEFEFEF;
+//			starling.stage.addEventListener(ResizeEvent.RESIZE, starling_resizeHandler);
 			starling.stage.addEventListener("quit", quitHandler);
 			starling.start();
 			
-			starlingInputAdapter = new StarlingInputAdapter(starling);
-			var gesturesManager:IGesturesManager = GesturesManager.getInstance();
-			gesturesManager.addInputAdapter(starlingInputAdapter);
+			// Initialized native (default) input adapter. Needed for non-DisplayList usage.
+			Gestouch.inputAdapter ||= new NativeInputAdapter(stage);
+			
+			starlingTouchHitTester = new StarlingTouchHitTester(starling);
+			Gestouch.addTouchHitTester(starlingTouchHitTester, -1);
 			
 			root.visible = false;
 		}
@@ -70,9 +72,11 @@ package org.gestouch.examples.views
 		{
 			super.onViewDeactivate();
 			
-			var gesturesManager:IGesturesManager = GesturesManager.getInstance();
-			gesturesManager.removeInputAdapter(starlingInputAdapter);
-			starlingInputAdapter = null;
+			if (starlingTouchHitTester)
+			{
+				Gestouch.removeTouchHitTester(starlingTouchHitTester);
+				starlingTouchHitTester = null;
+			}
 			
 			starling.stage.removeEventListener(ResizeEvent.RESIZE, starling_resizeHandler);
 			starling.stage.removeEventListener("quit", quitHandler);
@@ -86,10 +90,7 @@ package org.gestouch.examples.views
 		
 		private function starling_resizeHandler(event:ResizeEvent):void
 		{
-			var rect:Rectangle = new Rectangle(0, 0, event.width, event.height);
-			starling.viewPort = rect;
-			starling.stage.stageWidth = rect.width;
-			starling.stage.stageHeight = rect.height;
+			(starling.stage.getChildAt(0) as StarlingExampleBase).resize(event.width, event.height);
 		}
 	}
 }

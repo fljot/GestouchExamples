@@ -1,7 +1,6 @@
 package org.gestouch.examples.starling
 {
-	import fr.kouma.starling.utils.Stats;
-
+	import starling.core.Starling;
 	import starling.display.Image;
 	import starling.display.Sprite;
 	import starling.events.Event;
@@ -11,6 +10,7 @@ package org.gestouch.examples.starling
 	import starling.events.TouchPhase;
 	import starling.textures.Texture;
 
+	import flash.geom.Rectangle;
 	import flash.utils.setTimeout;
 
 
@@ -23,21 +23,29 @@ package org.gestouch.examples.starling
 		private static const backButtonImage:Class;
 		
 		private var backButton:Image;
-		private var stats:Stats;
 		
 		
 		public function StarlingExampleBase()
 		{
 			addEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
 		}
+
+
+		public function resize(width:int, height:int):void
+		{
+			const rect:Rectangle = new Rectangle(0, 0, width, height);
+			const starling:Starling = Starling.current;
+			starling.viewPort = rect;
+			starling.stage.stageWidth = rect.width;
+			starling.stage.stageHeight = rect.height;
+			
+			onResize(starling.stage.stageWidth, starling.stage.stageHeight);
+		}
 		
 		
 		protected function onResize(width:Number, height:Number):void
 		{
-			if (stats)
-			{
-				stats.x = width - stats.width;
-			}
+			
 		}
 
 
@@ -50,34 +58,16 @@ package org.gestouch.examples.starling
 		
 		
 		protected function init():void
-		{
-			stage.addEventListener(ResizeEvent.RESIZE, stage_resizeHandler);
-			
+		{			
 			backButton = new Image(Texture.fromBitmap(new backButtonImage()));
 			backButton.x = backButton.y = 3;
 			backButton.scaleX = backButton.scaleY = 2;
 			backButton.addEventListener(TouchEvent.TOUCH, backButton_touchHandler);
 			addChild(backButton);
 			
-//			stats = new Stats();
-//			addChild(stats);
-			
-			setTimeout(stage_resizeHandler, 1);
+			setTimeout(resize, 1, stage.stageWidth, stage.stageHeight);
 		}
-
-
-		private function stage_resizeHandler(event:ResizeEvent = null):void
-		{
-			if (event)
-			{
-				onResize(event.width, event.height);
-			}
-			else if (stage)
-			{
-				onResize(stage.stageWidth, stage.stageHeight);
-			}
-		}
-
+		
 
 		private function backButton_touchHandler(event:TouchEvent):void
 		{

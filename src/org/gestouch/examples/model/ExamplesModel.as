@@ -1,5 +1,7 @@
 package org.gestouch.examples.model
 {
+	import org.gestouch.examples.starling.ConflictGesturesExample;
+	import org.gestouch.examples.starling.TransformedViewportExample;
 	import org.gestouch.examples.views.ConflictGesturesView;
 	import org.gestouch.examples.views.DependentSwipingGesturesView;
 	import org.gestouch.examples.views.DependentTapGesturesView;
@@ -7,7 +9,7 @@ package org.gestouch.examples.model
 	import org.gestouch.examples.views.LongPressGestureView;
 	import org.gestouch.examples.views.PanGestureView;
 	import org.gestouch.examples.views.RotateGestureView;
-	import org.gestouch.examples.views.StarlingConflictGesturesView;
+	import org.gestouch.examples.views.StarlingExampleViewBase;
 	import org.gestouch.examples.views.SwipeGestureView;
 	import org.gestouch.examples.views.TapGestureUsageView;
 	import org.gestouch.examples.views.TapGestureView;
@@ -36,10 +38,9 @@ package org.gestouch.examples.model
 				,{label: "Conflicts Resolution Example", viewClass: ConflictGesturesView}
 				,{label: "Dependent Tap Gestures Example", viewClass: DependentTapGesturesView}
 				,{label: "Dependent Swiping Gestures Example", viewClass: DependentSwipingGesturesView}
-				,{label: "Starling: Conflicts Example", viewClass: StarlingConflictGesturesView}
+				,{label: "Starling: Conflicts Example", viewClass: StarlingExampleViewBase, starlingMainClass: ConflictGesturesExample}
+				,{label: "Starling: Transformed Viewport Example", viewClass: StarlingExampleViewBase, starlingMainClass: TransformedViewportExample}
 			]
 		);
-		
-		public var lastViewTitle:String;
 	}
 }
