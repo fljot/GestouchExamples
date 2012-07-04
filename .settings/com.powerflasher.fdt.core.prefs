@@ -1,4 +1,5 @@
-#Thu Mar 08 20:28:06 EET 2012
+#Sat Jun 30 16:36:50 EEST 2012
+AnesChanged=0
 com.powerflasher.fdt.core.CompatiblePlayers=AIR_Debug_Launcher
 com.powerflasher.fdt.core.CompilerArguments=-load-config\="{flexSDK}/frameworks/airmobile-config.xml"\n-target-player\={playerVersion}\n-library-path+\="{flexSDK}/frameworks/locale/en_US"
 com.powerflasher.fdt.core.DefaultOutputFolder=bin
