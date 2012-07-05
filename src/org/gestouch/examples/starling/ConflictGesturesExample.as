@@ -1,5 +1,8 @@
 package org.gestouch.examples.starling
 {
+	import com.greensock.easing.Linear;
+	import com.greensock.TweenLite;
+	import starling.core.Starling;
 	import starling.display.DisplayObject;
 	import starling.display.Image;
 	import starling.display.Sprite;
@@ -10,13 +13,17 @@ package org.gestouch.examples.starling
 	import org.gestouch.core.GestureState;
 	import org.gestouch.core.IGestureDelegate;
 	import org.gestouch.core.Touch;
+	import org.gestouch.events.LongPressGestureEvent;
 	import org.gestouch.events.TapGestureEvent;
 	import org.gestouch.events.TransformGestureEvent;
 	import org.gestouch.gestures.Gesture;
+	import org.gestouch.gestures.LongPressGesture;
 	import org.gestouch.gestures.TapGesture;
 	import org.gestouch.gestures.TransformGesture;
 	import org.gestouch.utils.GestureUtils;
 
+	import flash.display.Graphics;
+	import flash.display.Shape;
 	import flash.geom.Matrix;
 	import flash.geom.Point;
 
@@ -68,6 +75,34 @@ package org.gestouch.examples.starling
 			image.x = stage.stageWidth + image.width >> 1;
 			image.y = stage.stageHeight + image.height >> 1;
 			container.addChild(image);
+			
+			// native stage still acts as the parent of everything
+			var longPress:LongPressGesture = new LongPressGesture(Starling.current.nativeStage);
+			longPress.addEventListener(LongPressGestureEvent.GESTURE_LONG_PRESS, onLongPress);
+		}
+
+
+		private function onLongPress(event:LongPressGestureEvent):void
+		{
+			if (event.gestureState != GestureState.BEGAN)
+				return;
+			
+			const circle:Shape = new Shape();
+			var g:Graphics = circle.graphics;
+			g.beginFill(0x66ccff, 1);
+			g.drawCircle(0, 0, 100);
+			g.endFill();
+			Starling.current.nativeStage.addChild(circle);
+			circle.x = event.stageX;
+			circle.y = event.stageY;
+			TweenLite.to(circle, 0.5, {
+				alpha: 0,
+				scaleX: 0,
+				scaleY: 0,
+				ease: Linear.easeNone,
+				onComplete: circle.parent.removeChild,
+				onCompleteParams: [circle]
+			});
 		}
 		
 		
