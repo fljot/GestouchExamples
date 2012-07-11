@@ -20,7 +20,6 @@
 			import org.gestouch.gestures.PanGesture;
 			import org.gestouch.gestures.RotateGesture;
 			import org.gestouch.gestures.ZoomGesture;
-			import org.gestouch.utils.GestureUtils;
 
 			import mx.core.FlexGlobals;
 			import mx.core.UIComponent;
@@ -144,7 +143,7 @@
 					var matrix:Matrix = target.transform.matrix;
 					var transformPoint:Point = matrix.transformPoint(target.globalToLocal(gesture.location));
 					matrix.translate(-transformPoint.x, -transformPoint.y);
-					matrix.rotate(event.rotation * GestureUtils.DEGREES_TO_RADIANS);
+					matrix.rotate(event.rotation);
 					matrix.translate(transformPoint.x, transformPoint.y);
 					target.transform.matrix = matrix;
 				}

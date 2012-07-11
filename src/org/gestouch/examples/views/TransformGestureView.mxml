@@ -14,7 +14,6 @@
 			import org.gestouch.core.GestureState;
 			import org.gestouch.events.TransformGestureEvent;
 			import org.gestouch.gestures.TransformGesture;
-			import org.gestouch.utils.GestureUtils;
 			
 			
 			private var transformGesture:TransformGesture;
@@ -59,7 +58,7 @@
 						// can easely perform these transformations without any additional transformations.
 						var transformPoint:Point = matrix.transformPoint(new Point(event.localX, event.localY));
 						matrix.translate(-transformPoint.x, -transformPoint.y);
-						matrix.rotate(event.rotation * GestureUtils.DEGREES_TO_RADIANS);
+						matrix.rotate(event.rotation);
 						matrix.scale(event.scaleX, event.scaleY);
 						matrix.translate(transformPoint.x, transformPoint.y);
 					}

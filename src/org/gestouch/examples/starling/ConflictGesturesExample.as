@@ -172,7 +172,7 @@ package org.gestouch.examples.starling
 				// can easely perform these transformations without any additional transformations.
 				var transformPoint:Point = m.transformPoint(new Point(event.localX, event.localY));
 				m.translate(-transformPoint.x, -transformPoint.y);
-				m.rotate(event.rotation * GestureUtils.DEGREES_TO_RADIANS);
+				m.rotate(event.rotation);
 				m.scale(event.scaleX, event.scaleY);
 				m.translate(transformPoint.x, transformPoint.y);
 				

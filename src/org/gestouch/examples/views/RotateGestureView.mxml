@@ -16,7 +16,6 @@
 
 			import org.gestouch.events.RotateGestureEvent;
 			import org.gestouch.gestures.RotateGesture;
-			import org.gestouch.utils.GestureUtils;
 			
 			
 			private var rotate:RotateGesture;
@@ -61,7 +60,7 @@
 					var matrix:Matrix = image.transform.matrix;
 					var transformPoint:Point = matrix.transformPoint(new Point(event.localX, event.localY));
 					matrix.translate(-transformPoint.x, -transformPoint.y);
-					matrix.rotate(event.rotation * GestureUtils.DEGREES_TO_RADIANS);
+					matrix.rotate(event.rotation);
 					matrix.translate(transformPoint.x, transformPoint.y);
 					image.transform.matrix = matrix;
 				}
