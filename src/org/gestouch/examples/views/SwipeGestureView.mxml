@@ -179,7 +179,7 @@
 			
 			<s:Label text="minVelocity"/>
 			<s:HSlider id="minVelocitySlider"
-				minimum="0.5" maximum="3" stepSize="0.05" dataTipPrecision="2"
+				minimum="0.2" maximum="2" stepSize="0.05" dataTipPrecision="2"
 				change="onMinVelocitySliderChange(event)"/>
 			
 			<s:Label text="direction"/>
