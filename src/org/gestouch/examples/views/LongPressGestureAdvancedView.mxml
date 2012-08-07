@@ -21,13 +21,14 @@
 			private var longPressGesture:LongPressGesture;
 			
 			private var fingerToImageOffset:Point = new Point();
+			private var initialTransform:Matrix;
 
 
 			override protected function init():void
 			{
 				super.init();
 				
-				TweenPlugin.activate([GlowFilterPlugin]);				
+				TweenPlugin.activate([GlowFilterPlugin]);
 			}
 			
 			
@@ -57,19 +58,27 @@
 			{
 				var loc:Point = globalToLocal(longPressGesture.location);
 				
-				if (event.gestureState == GestureState.BEGAN)
-				{			
-					TweenMax.to(image, 0.5, {alpha: 0.5, glowFilter: {color: 0xEEEEEE * Math.random(), blurX: 16, blurY: 16, strength: 2, alpha: 1}});
-					fingerToImageOffset.x = image.x - loc.x;
-					fingerToImageOffset.y = image.y - loc.y;
-				}
-				else if (event.gestureState == GestureState.CHANGED)
+				switch (event.gestureState)
 				{
-					image.move(fingerToImageOffset.x + loc.x, fingerToImageOffset.y + loc.y);
-				}
-				else if (event.gestureState == GestureState.ENDED)
-				{
-					TweenMax.to(image, 1, {alpha: 1, glowFilter: {alpha: 0, remove: true}});
+					case GestureState.BEGAN:
+						initialTransform = image.transform.matrix;
+						TweenMax.to(image, 0.5, {alpha: 0.5, glowFilter: {color: 0xEEEEEE * Math.random(), blurX: 16, blurY: 16, strength: 2, alpha: 1}});
+						fingerToImageOffset.x = image.x - loc.x;
+						fingerToImageOffset.y = image.y - loc.y;
+						break;
+					
+					case GestureState.CHANGED:
+						image.move(fingerToImageOffset.x + loc.x, fingerToImageOffset.y + loc.y);
+						break;
+					
+					case GestureState.ENDED:
+						TweenMax.to(image, 1, {alpha: 1, glowFilter: {alpha: 0, remove: true}});
+						break;
+					
+					case GestureState.CANCELLED:
+						TweenMax.to(image, 0, {alpha: 1, glowFilter: {alpha: 0, remove: true}});
+						image.transform.matrix = initialTransform;
+						break;
 				}
 			}
 		]]>
