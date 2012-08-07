@@ -9,6 +9,8 @@
 		>
 	<fx:Script>
 		<![CDATA[
+			import mx.utils.ObjectUtil;
+			import org.gestouch.examples.model.ExamplesModel;
 			import mx.core.IFlexDisplayObject;
 			import spark.components.Button;
 			import spark.events.IndexChangeEvent;
@@ -22,6 +24,9 @@
 			
 			private var debuggerButton:Button;
 			
+			[Bindable]
+			private var dataModel:ExamplesModel;
+			
 			
 			override protected function init():void
 			{
@@ -29,7 +34,9 @@
 				debuggerButton = new Button();
 				debuggerButton.setStyle("icon", debuggerIconAsset);
 				debuggerButton.addEventListener(MouseEvent.CLICK, debuggerButton_clickHandler);
-				actionContent = [debuggerButton];
+//				actionContent = [debuggerButton];
+
+				dataModel = data as ExamplesModel;
 			}
 			
 			
@@ -45,10 +52,14 @@
 			{
 				if (event.newIndex > -1)
 				{
-					var exampleName:String = list.selectedItem.label;
-					dataModel.lastViewTitle = exampleName;
+					const data:Object = {};
+					for (var k:* in list.selectedItem)
+					{
+						data[k] = list.selectedItem[k];
+					}
+					data.title = list.selectedItem.label;					
 					var viewClass:Class = list.selectedItem.viewClass;
-					navigator.pushView(viewClass, dataModel);
+					navigator.pushView(viewClass, data);
 				}
 			}
 			

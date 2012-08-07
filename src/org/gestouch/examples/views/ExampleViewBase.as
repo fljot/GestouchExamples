@@ -4,8 +4,6 @@ package org.gestouch.examples.views
 	import spark.components.View;
 	import spark.events.ViewNavigatorEvent;
 
-	import org.gestouch.examples.model.ExamplesModel;
-
 	import mx.core.UIComponent;
 	import mx.events.FlexEvent;
 	import mx.events.ResizeEvent;
@@ -24,9 +22,6 @@ package org.gestouch.examples.views
 			
 		private var backButton:Button;
 		private var settingsButton:Button;
-		
-		[Bindable]
-		protected var dataModel:ExamplesModel;
 		
 		
 		public function ExampleViewBase()
@@ -85,13 +80,11 @@ package org.gestouch.examples.views
 
 		protected function onViewActivate():void
 		{
-			if (!dataModel && data)
-			{
-				dataModel = data as ExamplesModel;
-				
-				if (dataModel.lastViewTitle)
+			if (data)
+			{				
+				if (data.hasOwnProperty("title"))
 				{
-					title = dataModel.lastViewTitle;
+					title = data.title;
 				}
 			}
 		}

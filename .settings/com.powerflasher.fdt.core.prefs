@@ -1,4 +1,5 @@
-#Mon Apr 25 18:42:57 EEST 2011
+#Sat Jun 30 16:36:50 EEST 2012
+AnesChanged=0
 com.powerflasher.fdt.core.CompatiblePlayers=AIR_Debug_Launcher
 com.powerflasher.fdt.core.CompilerArguments=-load-config\="{flexSDK}/frameworks/airmobile-config.xml"\n-target-player\={playerVersion}\n-library-path+\="{flexSDK}/frameworks/locale/en_US"
 com.powerflasher.fdt.core.DefaultOutputFolder=bin
@@ -8,8 +9,8 @@ com.powerflasher.fdt.core.PassClasspath=true
 com.powerflasher.fdt.core.PassMainclass=true
 com.powerflasher.fdt.core.PassRsls=false
 com.powerflasher.fdt.core.PassSwcs=true
-com.powerflasher.fdt.core.PlayerVersion=10.2
+com.powerflasher.fdt.core.PlayerVersion=11.1
 com.powerflasher.fdt.core.ProjectTypeHint=Flex 4.5 Mobile
 com.powerflasher.fdt.core.Runtime=AIR
-com.powerflasher.fdt.core.SdkName=Flex 4.5
+com.powerflasher.fdt.core.SdkName=Flex 4.6
 eclipse.preferences.version=1

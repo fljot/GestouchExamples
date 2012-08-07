@@ -179,6 +179,58 @@
 		</java>
 	</target>
 	
+	
+	<target name="package.apk.captive" description="" depends="ide.resetCompiler">
+		<var name="example.name" value="GestouchExamples" />
+		
+		<compile.release input="${project.examplesPackage.dir}/${example.name}.mxml"
+			output="${example.name}.swf"
+			compilerArguments=""
+		/>
+		
+		<if>
+			<equals arg1="${project.android.certificate.password}" arg2=""/>
+			<then>
+				<input message="Certificate password:"
+					addproperty="var.project.app.certificate.password"/>
+			</then>
+			<else>
+				<var name="var.project.app.certificate.password" value="${project.android.certificate.password}" />
+			</else>
+		</if>
+		
+		<var name="var.project.app.descriptor" value="${binrelease.dir}/${example.name}-apk.xml"/>
+		<copy file="${project.android.descriptor.template}" tofile="${var.project.app.descriptor}" overwrite="true">
+			<filterset>
+				<filter token="ID" value="${project.android.appID}" />
+				<filter token="FILENAME" value="${example.name}" />
+				<filter token="VERSION" value="${project.version}" />
+				<filter token="CONTENT" value="${example.name}.swf" />
+			</filterset>
+		</copy>
+		
+		<java jar="${flexSDK.adt}" fork="true" failonerror="true">
+			<arg value="-package" />
+			
+			<arg value="-target" />
+			<arg value="apk-captive-runtime" />
+			
+			<arg value="-storetype" />
+			<arg value="pkcs12" />
+			<arg value="-keystore" />
+			<arg value="${project.android.certificate}"/>
+			<arg value="-storepass" />
+			<arg value="${var.project.app.certificate.password}" />
+
+			<arg value="${binrelease.dir}/${example.name}-captive.apk" />
+			<arg value="${var.project.app.descriptor}" />
+			<arg value="-C" />
+			<arg value="${binrelease.dir}" />
+			<arg value="${example.name}.swf" />
+		</java>	
+	</target>
+
+	
 	<target name="ide.startDebugger" description="Starts IDE Debugger">
 		<if>
 			<equals arg1="${user.ide}" arg2="FDT4"/>
@@ -225,26 +277,11 @@
 	
 	<!-- Hidden targets and macro definitions-->
 	
-	<macrodef name="compile.example">
-		<attribute name="exampleName" />
-		<attribute name="compilerArguments" default="" />
-		<attribute name="air" default="true" />
-		<attribute name="openSWF" default="false" />
-		<sequential>
-			<compile.debug input="${project.examplesPackage.dir}/@{exampleName}.as"
-				output="@{exampleName}.swf"
-				compilerArguments="@{compilerArguments}"
-				air="@{air}"
-				openSWF="@{openSWF}"
-			/>
-		</sequential>
-	</macrodef>	
-	
 	<macrodef name="compile.debug">
 		<attribute name="input" />
 		<attribute name="output" />
-		<attribute name="air" default="true" />
 		<attribute name="compilerArguments" default="" />
+		<attribute name="air" default="true" />
 		<attribute name="openSWF" default="false" />
 		<sequential>
 			<var name="var.compilerArguments" value="${project.baseCompilerArguments} ${project.debugCompilerArguments} @{compilerArguments}" />
@@ -256,7 +293,7 @@
 			</if>
 			
 			<if>
-				<equals arg1="${user.ide}" arg2="FDT4"/>
+				<equals arg1="${user.ide}" arg2="FDT4_foobar"/>
 				<then>
 					<fdt.launch.application projectname="${project.name}"
 						compilerarguments="${var.compilerArguments}"
@@ -296,6 +333,39 @@
 					</if>
 				</else>
 			</if>			
+		</sequential>
+	</macrodef>
+	
+	<macrodef name="compile.release">
+		<attribute name="input" />
+		<attribute name="output" />
+		<attribute name="compilerArguments" default="" />
+		<attribute name="air" default="true" />
+		<attribute name="openSWF" default="false" />
+		<sequential>
+			<var name="var.compilerArguments" value="${project.baseCompilerArguments} ${project.releaseCompilerArguments} @{compilerArguments}" />
+			<if>
+				<equals arg1="@{air}" arg2="true" />
+				<then>
+					<var name="var.compilerArguments" value="${var.compilerArguments} ${project.mobileCompilerArguments} +configname=airmobile" />
+				</then>
+			</if>
+			
+			<java jar="${flexSDK.dir}/lib/mxmlc.jar" dir="${flexSDK.dir}/frameworks" fork="true" failonerror="true">
+				<arg value="${src.dir}/@{input}"/>
+				<arg value="-incremental=false"/>
+				<arg value="-headless-server=true"/>
+				<arg value="-debug=false"/>
+				<!--<arg value="+configname=flex"/>-->
+				<arg value="-source-path+=${src.dir}"/>
+				<arg value="-source-path+=${src_framework.dir}"/>
+				<arg value="-source-path+=${src_external.dir}"/>
+				<arg value="-library-path+=${flexSDK.dir}/frameworks/libs"/>
+				<arg value="-library-path+=${flexSDK.dir}/frameworks/libs/mx"/>
+				<arg value="-library-path+=${libs.dir}"/>
+				<arg value="-output=${binrelease.dir}/@{output}"/>
+				<arg line="${var.compilerArguments}"/>
+			</java>
 		</sequential>
 	</macrodef>
 	
