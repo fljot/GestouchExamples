@@ -5,6 +5,7 @@
 	xmlns:views="org.gestouch.examples.views.*"
 	xmlns:controls="org.gestouch.examples.controls.*"
 	xmlns:containers="org.gestouch.examples.containers.*"
+	xmlns:gestures="org.gestouch.gestures.*"
 	>
 	
 	<fx:Script>
@@ -13,100 +14,12 @@
 			import com.greensock.plugins.GlowFilterPlugin;
 			import com.greensock.plugins.TweenPlugin;
 
-			import org.gestouch.events.TapGestureEvent;
-			import org.gestouch.gestures.TapGesture;
-			
-			
-			private var tapGesture:TapGesture;
-
 
 			override protected function init():void
 			{
 				super.init();
 				
-				TweenPlugin.activate([GlowFilterPlugin]);				
-			}
-			
-			
-			override protected function onViewActivate():void
-			{
-				super.onViewActivate();
-				
-				tapGesture = new TapGesture(button);
-				tapGesture.addEventListener(TapGestureEvent.GESTURE_TAP, onGesture);
-				
-				slopSlider.value = tapGesture.slop;
-				touchesSlider.value = tapGesture.numTouchesRequired;
-				tapsSlider.value = tapGesture.numTapsRequired;
-				maxTapDelaySlider.value = tapGesture.maxTapDelay;
-				maxTapDurationSlider.value = tapGesture.maxTapDuration;
-			}
-			
-			
-			override protected function onViewDeactivate():void
-			{
-				super.onViewDeactivate();
-				
-				if (tapGesture)
-				{
-					tapGesture.removeEventListener(TapGestureEvent.GESTURE_TAP, onGesture);
-					tapGesture.dispose();
-					tapGesture = null;
-				}
-			}
-			
-
-			private function onGesture(event:TapGestureEvent):void
-			{
-				TweenMax.fromTo(button, 1,
-					{glowFilter: {color: 0xCCCCCC * Math.random(), blurX: 64, blurY: 64, strength: 3, alpha: 1, quality: 1}},
-					{glowFilter: {alpha: 0, remove: true}}
-				);
-			}
-			
-			
-			private function onSlopSliderChange(event:Event = null):void
-			{
-				if (tapGesture)
-				{
-					tapGesture.slop = slopSlider.value;
-				}
-			}
-			
-			
-			private function onTouchesSliderChange(event:Event = null):void
-			{
-				if (tapGesture)
-				{
-					tapGesture.numTouchesRequired = touchesSlider.value;
-				}
-			}
-			
-			
-			private function onTapsSliderChange(event:Event = null):void
-			{
-				if (tapGesture)
-				{
-					tapGesture.numTapsRequired = tapsSlider.value;
-				}
-			}
-			
-			
-			private function onMaxTapDelaySliderChange(event:Event = null):void
-			{
-				if (tapGesture)
-				{
-					tapGesture.maxTapDelay = maxTapDelaySlider.value;
-				}
-			}
-			
-			
-			private function onMaxTapDurationSliderChange(event:Event = null):void
-			{
-				if (tapGesture)
-				{
-					tapGesture.maxTapDuration = maxTapDurationSlider.value;
-				}
+				TweenPlugin.activate([GlowFilterPlugin]);
 			}
 		]]>
 	</fx:Script>
@@ -117,29 +30,48 @@
 		<containers:SettingsPanel id="settings">	
 			<s:Label text="slop"/>
 			<s:HSlider id="slopSlider"
-				minimum="0" maximum="50" stepSize="1" dataTipPrecision="0"
-				change="onSlopSliderChange(event)"/>
+				minimum="0" maximum="100" stepSize="1" dataTipPrecision="0"
+				value="@{tap.slop}"
+				/>
 			
 			<s:Label text="numTouchesRequired"/>
 			<s:HSlider id="touchesSlider"
 				minimum="1" maximum="4" stepSize="1" dataTipPrecision="0"
-				change="onTouchesSliderChange(event)"/>
+				value="@{tap.numTouchesRequired}"
+				/>
 			
 			<s:Label text="numTapsRequired"/>
 			<s:HSlider id="tapsSlider"
 				minimum="1" maximum="4" stepSize="1" dataTipPrecision="0"
-				change="onTapsSliderChange(event)"/>
+				value="@{tap.numTapsRequired}"
+				/>
 			
 			<s:Label text="maxTapDelay"/>
 			<s:HSlider id="maxTapDelaySlider"
 				minimum="300" maximum="1000" stepSize="100" dataTipPrecision="0"
-				change="onMaxTapDelaySliderChange(event)"/>
+				value="@{tap.maxTapDelay}"
+				/>
 			
 			<s:Label text="maxTapDuration"/>
 			<s:HSlider id="maxTapDurationSlider"
 				minimum="500" maximum="5000" stepSize="100" dataTipPrecision="0"
-				change="onMaxTapDurationSliderChange(event)"/>
+				value="@{tap.maxTapDuration}"
+				/>
 		</containers:SettingsPanel>
+		
+		<gestures:TapGesture id="tap" target="{button}"
+			maxTapDuration="@{maxTapDurationSlider.value}"
+			maxTapDelay="@{maxTapDelaySlider.value}"
+			numTapsRequired="@{tapsSlider.value}"
+			numTouchesRequired="@{touchesSlider.value}"
+		>
+			<gestures:gestureTap><![CDATA[
+				TweenMax.fromTo(button, 1,
+					{glowFilter: {color: 0xCCCCCC * Math.random(), blurX: 64, blurY: 64, strength: 3, alpha: 1, quality: 1}},
+					{glowFilter: {alpha: 0, remove: true}}
+				);
+			]]></gestures:gestureTap>
+		</gestures:TapGesture>
 	</fx:Declarations>
 	
 </views:ExampleViewBase>
