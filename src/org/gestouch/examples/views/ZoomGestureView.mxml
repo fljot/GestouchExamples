@@ -11,7 +11,7 @@
 	
 	<fx:Script>
 		<![CDATA[
-			import org.gestouch.events.ZoomGestureEvent;
+			import org.gestouch.events.GestureEvent;
 			import org.gestouch.gestures.ZoomGesture;
 			
 			
@@ -23,7 +23,8 @@
 				super.onViewActivate();
 				
 				zoom = new ZoomGesture(image);
-				zoom.addEventListener(ZoomGestureEvent.GESTURE_ZOOM, onGesture);
+				zoom.addEventListener(org.gestouch.events.GestureEvent.GESTURE_BEGAN, onGesture);
+				zoom.addEventListener(org.gestouch.events.GestureEvent.GESTURE_CHANGED, onGesture);
 			}
 			
 			
@@ -33,26 +34,22 @@
 				
 				if (zoom)
 				{
-					zoom.removeEventListener(ZoomGestureEvent.GESTURE_ZOOM, onGesture);
-					zoom.dispose();
+					zoom.dispose();// all event listeners automatically removed
 					zoom = null;
 				}
 			}
 			
 			
-			private function onGesture(event:ZoomGestureEvent):void
+			private function onGesture(event:org.gestouch.events.GestureEvent):void
 			{
-//				var loc:Point = globalToLocal(zoom.location);
+				const gesture:ZoomGesture = event.target as ZoomGesture;
 				
-				if (event.scaleX != 1 || event.scaleY)
-				{			
-					var matrix:Matrix = image.transform.matrix;
-					var transformPoint:Point = matrix.transformPoint(new Point(event.localX, event.localY));
-					matrix.translate(-transformPoint.x, -transformPoint.y);
-					matrix.scale(event.scaleX, event.scaleY);
-					matrix.translate(transformPoint.x, transformPoint.y);
-					image.transform.matrix = matrix;
-				}
+				var matrix:Matrix = image.transform.matrix;
+				var transformPoint:Point = matrix.transformPoint(image.globalToLocal(zoom.location));
+				matrix.translate(-transformPoint.x, -transformPoint.y);
+				matrix.scale(gesture.scaleX, gesture.scaleY);
+				matrix.translate(transformPoint.x, transformPoint.y);
+				image.transform.matrix = matrix;
 			}
 			
 			

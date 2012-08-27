@@ -11,22 +11,11 @@
 	
 	<fx:Script>
 		<![CDATA[
-			import com.greensock.plugins.GlowFilterPlugin;
-			import com.greensock.plugins.TweenPlugin;
-
-			import org.gestouch.events.RotateGestureEvent;
+			import org.gestouch.events.GestureEvent;
 			import org.gestouch.gestures.RotateGesture;
 			
 			
 			private var rotate:RotateGesture;
-
-
-			override protected function init():void
-			{
-				super.init();
-				
-				TweenPlugin.activate([GlowFilterPlugin]);				
-			}
 			
 			
 			override protected function onViewActivate():void
@@ -34,7 +23,8 @@
 				super.onViewActivate();
 				
 				rotate = new RotateGesture(image);
-				rotate.addEventListener(RotateGestureEvent.GESTURE_ROTATE, onGesture);
+				rotate.addEventListener(org.gestouch.events.GestureEvent.GESTURE_BEGAN, onGesture);
+				rotate.addEventListener(org.gestouch.events.GestureEvent.GESTURE_CHANGED, onGesture);
 			}
 			
 			
@@ -44,26 +34,22 @@
 				
 				if (rotate)
 				{
-					rotate.removeEventListener(RotateGestureEvent.GESTURE_ROTATE, onGesture);
-					rotate.dispose();
+					rotate.dispose();// all event listeners automatically removed
 					rotate = null;
 				}
 			}
 			
 			
-			private function onGesture(event:RotateGestureEvent):void
+			private function onGesture(event:org.gestouch.events.GestureEvent):void
 			{
-				var loc:Point = globalToLocal(rotate.location);
+				const gesture:RotateGesture = event.target as RotateGesture;
 				
-				if (event.rotation != 0)
-				{			
-					var matrix:Matrix = image.transform.matrix;
-					var transformPoint:Point = matrix.transformPoint(new Point(event.localX, event.localY));
-					matrix.translate(-transformPoint.x, -transformPoint.y);
-					matrix.rotate(event.rotation);
-					matrix.translate(transformPoint.x, transformPoint.y);
-					image.transform.matrix = matrix;
-				}
+				var matrix:Matrix = image.transform.matrix;
+				var transformPoint:Point = matrix.transformPoint(image.globalToLocal(rotate.location));
+				matrix.translate(-transformPoint.x, -transformPoint.y);
+				matrix.rotate(gesture.rotation);
+				matrix.translate(transformPoint.x, transformPoint.y);
+				image.transform.matrix = matrix;
 			}
 			
 			

@@ -1,12 +1,12 @@
 package org.gestouch.examples.starling
 {
-	import starling.textures.Texture;
 	import starling.core.Starling;
 	import starling.display.Image;
+	import starling.textures.Texture;
 
 	import com.greensock.TweenMax;
 
-	import org.gestouch.events.TapGestureEvent;
+	import org.gestouch.events.GestureEvent;
 	import org.gestouch.gestures.Gesture;
 	import org.gestouch.gestures.TapGesture;
 
@@ -50,11 +50,11 @@ package org.gestouch.examples.starling
 			addChild(image);
 			
 			var tap:TapGesture = new TapGesture(image);
-			tap.addEventListener(TapGestureEvent.GESTURE_TAP, onTap, false, 0, true);
+			tap.addEventListener(GestureEvent.GESTURE_RECOGNIZED, onTap, false, 0, true);
 		}
 		
 
-		private function onTap(event:TapGestureEvent):void
+		private function onTap(event:GestureEvent):void
 		{
 			trace("tap");
 			TweenMax.to((event.target as Gesture).target, 0.5, {bezierThrough:[{alpha:0.1}, {alpha:1}]});

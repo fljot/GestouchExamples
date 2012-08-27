@@ -9,17 +9,11 @@
 	
 	<fx:Script>
 		<![CDATA[
-			import org.gestouch.events.PanGestureEvent;
+			import org.gestouch.events.GestureEvent;
 			import org.gestouch.gestures.PanGesture;
 			
 			
 			private var pan:PanGesture;
-			
-			
-			override protected function init():void
-			{
-				super.init();				
-			}
 			
 			
 			override protected function onViewActivate():void
@@ -28,7 +22,8 @@
 								
 				pan = new PanGesture(image);
 				pan.maxNumTouchesRequired = 2;
-				pan.addEventListener(PanGestureEvent.GESTURE_PAN, onPan);
+				pan.addEventListener(org.gestouch.events.GestureEvent.GESTURE_BEGAN, onPan);
+				pan.addEventListener(org.gestouch.events.GestureEvent.GESTURE_CHANGED, onPan);
 				
 				slopSlider.value = pan.slop;
 				minNumTouchesSlider.value = pan.minNumTouchesRequired;
@@ -42,19 +37,16 @@
 				
 				if (pan)
 				{
-					pan.removeEventListener(PanGestureEvent.GESTURE_PAN, onPan);
-					pan.dispose();
+					pan.dispose();// all event listeners automatically removed
 					pan = null;
 				}
 			}
 			
 			
-			private function onPan(event:PanGestureEvent):void
+			private function onPan(event:org.gestouch.events.GestureEvent):void
 			{
-				if (event.offsetX != 0 || event.offsetY != 0)
-				{
-					image.move(image.x + event.offsetX, image.y + event.offsetY);
-				}
+				const gesture:PanGesture = event.target as PanGesture;
+				image.move(image.x + gesture.offsetX, image.y + gesture.offsetY);
 			}
 			
 			

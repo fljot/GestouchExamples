@@ -21,6 +21,20 @@
 				
 				TweenPlugin.activate([GlowFilterPlugin]);
 			}
+			
+			
+			override protected function onViewDeactivate():void
+			{
+				super.onViewDeactivate();
+				
+				if (tap)
+				{
+					tap.removeAllEventListeners();
+					// Do not dispose it because view can be activated again.
+					// Removing all event listeners is enough for it to be GC-ed
+					// as soon as this view is GC-ed.
+				}
+			}
 		]]>
 	</fx:Script>
 	
@@ -65,12 +79,15 @@
 			numTapsRequired="@{tapsSlider.value}"
 			numTouchesRequired="@{touchesSlider.value}"
 		>
-			<gestures:gestureTap><![CDATA[
+			<gestures:gestureStateChange>
+				trace("gesture state changed from " + event.oldState + " to " + event.newState);
+			</gestures:gestureStateChange>
+			<gestures:gestureRecognized><![CDATA[
 				TweenMax.fromTo(button, 1,
 					{glowFilter: {color: 0xCCCCCC * Math.random(), blurX: 64, blurY: 64, strength: 3, alpha: 1, quality: 1}},
 					{glowFilter: {alpha: 0, remove: true}}
 				);
-			]]></gestures:gestureTap>
+			]]></gestures:gestureRecognized>
 		</gestures:TapGesture>
 	</fx:Declarations>
 	

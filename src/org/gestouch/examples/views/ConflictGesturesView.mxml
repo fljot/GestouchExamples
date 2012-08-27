@@ -11,11 +11,8 @@
 	
 	<fx:Script>
 		<![CDATA[
-			import org.gestouch.core.GestureState;
 			import org.gestouch.core.Touch;
-			import org.gestouch.events.PanGestureEvent;
-			import org.gestouch.events.RotateGestureEvent;
-			import org.gestouch.events.ZoomGestureEvent;
+			import org.gestouch.events.GestureEvent;
 			import org.gestouch.gestures.Gesture;
 			import org.gestouch.gestures.PanGesture;
 			import org.gestouch.gestures.RotateGesture;
@@ -23,6 +20,7 @@
 
 			import mx.core.FlexGlobals;
 			import mx.core.UIComponent;
+
 
 
 			private var gestures:Vector.<Gesture> = new Vector.<Gesture>();
@@ -65,12 +63,9 @@
 			override protected function onViewDeactivate():void
 			{
 				super.onViewDeactivate();
-								
+				
 				for each (var gesture:Gesture in gestures) 
 				{
-					gesture.removeEventListener(PanGestureEvent.GESTURE_PAN, onPan);
-					gesture.removeEventListener(ZoomGestureEvent.GESTURE_ZOOM, onZoom);
-					gesture.removeEventListener(RotateGestureEvent.GESTURE_ROTATE, onRotate);
 					gesture.dispose();
 				}
 				
@@ -83,17 +78,20 @@
 				var pan:PanGesture = new PanGesture(target);
 				pan.maxNumTouchesRequired = 2;
 				pan.delegate = this;
-				pan.addEventListener(PanGestureEvent.GESTURE_PAN, onPan);
+				pan.addEventListener(org.gestouch.events.GestureEvent.GESTURE_BEGAN, onPan);
+				pan.addEventListener(org.gestouch.events.GestureEvent.GESTURE_CHANGED, onPan);
 				gestures.push(pan);
 
 				var zoom:ZoomGesture = new ZoomGesture(target);
-				zoom.addEventListener(ZoomGestureEvent.GESTURE_ZOOM, onZoom);
+				zoom.addEventListener(org.gestouch.events.GestureEvent.GESTURE_BEGAN, onZoom);
+				zoom.addEventListener(org.gestouch.events.GestureEvent.GESTURE_CHANGED, onZoom);
 				zoom.delegate = this;
 				gestures.push(zoom);
 				
 				var rotate:RotateGesture = new RotateGesture(target);
 				rotate.delegate = this;
-				rotate.addEventListener(RotateGestureEvent.GESTURE_ROTATE, onRotate);
+				rotate.addEventListener(org.gestouch.events.GestureEvent.GESTURE_BEGAN, onRotate);
+				rotate.addEventListener(org.gestouch.events.GestureEvent.GESTURE_CHANGED, onRotate);
 				gestures.push(rotate);
 				
 				if (target is Image)
@@ -104,49 +102,40 @@
 			}
 			
 			
-			private function onPan(event:PanGestureEvent):void
+			private function onPan(event:org.gestouch.events.GestureEvent):void
 			{
-				var gesture:PanGesture = event.target as PanGesture;
-				var target:UIComponent = gesture.target as UIComponent;
+				const gesture:PanGesture = event.target as PanGesture;
+				const target:UIComponent = gesture.target as UIComponent;
 				
-				if (event.gestureState == GestureState.BEGAN || event.gestureState == GestureState.CHANGED)
-				{
-					target.move(target.x + event.offsetX, target.y + event.offsetY);
-				}
+				target.move(target.x + gesture.offsetX, target.y + gesture.offsetY);
 			}
 			
 			
-			private function onZoom(event:ZoomGestureEvent):void
+			private function onZoom(event:org.gestouch.events.GestureEvent):void
 			{
-				var gesture:ZoomGesture = event.target as ZoomGesture;
-				var target:UIComponent = gesture.target as UIComponent;
+				const gesture:ZoomGesture = event.target as ZoomGesture;
+				const target:UIComponent = gesture.target as UIComponent;
 				
-				if (event.scaleX != 1 || event.scaleY != 1)
-				{
-					var matrix:Matrix = target.transform.matrix;
-					var transformPoint:Point = matrix.transformPoint(target.globalToLocal(gesture.location));
-					matrix.translate(-transformPoint.x, -transformPoint.y);
-					matrix.scale(event.scaleX, event.scaleY);
-					matrix.translate(transformPoint.x, transformPoint.y);
-					target.transform.matrix = matrix;
-				}
+				var matrix:Matrix = target.transform.matrix;
+				var transformPoint:Point = matrix.transformPoint(target.globalToLocal(gesture.location));
+				matrix.translate(-transformPoint.x, -transformPoint.y);
+				matrix.scale(gesture.scaleX, gesture.scaleY);
+				matrix.translate(transformPoint.x, transformPoint.y);
+				target.transform.matrix = matrix;
 			}
 			
 			
-			private function onRotate(event:RotateGestureEvent):void
+			private function onRotate(event:org.gestouch.events.GestureEvent):void
 			{
-				var gesture:RotateGesture = event.target as RotateGesture;
-				var target:UIComponent = gesture.target as UIComponent;
+				const gesture:RotateGesture = event.target as RotateGesture;
+				const target:UIComponent = gesture.target as UIComponent;
 				
-				if (event.rotation != 0)
-				{
-					var matrix:Matrix = target.transform.matrix;
-					var transformPoint:Point = matrix.transformPoint(target.globalToLocal(gesture.location));
-					matrix.translate(-transformPoint.x, -transformPoint.y);
-					matrix.rotate(event.rotation);
-					matrix.translate(transformPoint.x, transformPoint.y);
-					target.transform.matrix = matrix;
-				}
+				var matrix:Matrix = target.transform.matrix;
+				var transformPoint:Point = matrix.transformPoint(target.globalToLocal(gesture.location));
+				matrix.translate(-transformPoint.x, -transformPoint.y);
+				matrix.rotate(gesture.rotation);
+				matrix.translate(transformPoint.x, transformPoint.y);
+				target.transform.matrix = matrix;
 			}
 		]]>
 	</fx:Script>

@@ -13,9 +13,9 @@
 			import com.greensock.plugins.GlowFilterPlugin;
 			import com.greensock.plugins.TweenPlugin;
 
-			import org.gestouch.core.GestureState;
-			import org.gestouch.events.LongPressGestureEvent;
+			import org.gestouch.events.GestureEvent;
 			import org.gestouch.gestures.LongPressGesture;
+
 			
 			
 			private var longPressGesture:LongPressGesture;
@@ -25,7 +25,7 @@
 			{
 				super.init();
 				
-				TweenPlugin.activate([GlowFilterPlugin]);				
+				TweenPlugin.activate([GlowFilterPlugin]);
 			}
 			
 			
@@ -34,7 +34,7 @@
 				super.onViewActivate();
 				
 				longPressGesture = new LongPressGesture(button);
-				longPressGesture.addEventListener(LongPressGestureEvent.GESTURE_LONG_PRESS, onGesture);
+				longPressGesture.addEventListener(org.gestouch.events.GestureEvent.GESTURE_BEGAN, onGesture);
 				
 				slopSlider.value = longPressGesture.slop;
 				touchesSlider.value = longPressGesture.numTouchesRequired;
@@ -48,22 +48,18 @@
 				
 				if (longPressGesture)
 				{
-					longPressGesture.removeEventListener(LongPressGestureEvent.GESTURE_LONG_PRESS, onGesture);
-					longPressGesture.dispose();
+					longPressGesture.dispose();// all event listeners automatically removed
 					longPressGesture = null;
 				}
 			}
 			
 
-			private function onGesture(event:LongPressGestureEvent):void
+			private function onGesture(event:org.gestouch.events.GestureEvent):void
 			{
-				if (event.gestureState == GestureState.BEGAN)
-				{
-					TweenMax.fromTo(button, 1,
-						{glowFilter: {color: 0xCCCCCC * Math.random(), blurX: 64, blurY: 64, strength: 3, alpha: 1, quality: 1}},
-						{glowFilter: {alpha: 0, remove: true}}
-					);
-				}
+				TweenMax.fromTo(button, 1,
+					{glowFilter: {color: 0xCCCCCC * Math.random(), blurX: 64, blurY: 64, strength: 3, alpha: 1, quality: 1}},
+					{glowFilter: {alpha: 0, remove: true}}
+				);
 			}
 			
 			
