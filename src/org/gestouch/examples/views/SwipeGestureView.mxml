@@ -9,15 +9,14 @@
 	
 	<fx:Script>
 		<![CDATA[
-			import org.gestouch.gestures.SwipeGestureDirection;
-			import org.gestouch.core.GestureState;
-			import org.gestouch.events.GestureStateEvent;
 			import com.greensock.TweenMax;
 			import com.greensock.easing.Sine;
 
-			import org.gestouch.events.SwipeGestureEvent;
+			import org.gestouch.events.GestureEvent;
 			import org.gestouch.examples.controls.ArrowShape;
 			import org.gestouch.gestures.SwipeGesture;
+			import org.gestouch.gestures.SwipeGestureDirection;
+
 			
 			
 			private var arrow:ArrowShape;
@@ -41,8 +40,8 @@
 				super.onViewActivate();
 				
 				swipe = new SwipeGesture(this);
-				swipe.addEventListener(SwipeGestureEvent.GESTURE_SWIPE, onGesture);
-				swipe.addEventListener(GestureStateEvent.STATE_CHANGE, onGestureStateChange);
+				swipe.addEventListener(org.gestouch.events.GestureEvent.GESTURE_RECOGNIZED, onGesture);
+				swipe.addEventListener(org.gestouch.events.GestureEvent.GESTURE_FAILED, onGestureStateChange);
 				
 				minDistanceSlider.value = swipe.minOffset;
 				touchesSlider.value = swipe.numTouchesRequired;
@@ -61,8 +60,7 @@
 				
 				if (swipe)
 				{
-					swipe.removeEventListener(SwipeGestureEvent.GESTURE_SWIPE, onGesture);
-					swipe.dispose();
+					swipe.dispose();// all event listeners automatically removed
 					swipe = null;
 				}
 				
@@ -70,13 +68,15 @@
 			}
 			
 
-			private function onGesture(event:SwipeGestureEvent):void
+			private function onGesture(event:org.gestouch.events.GestureEvent):void
 			{
-				arrow.scaleX = (event.offsetX < 0 && event.offsetY == 0 ? -1 : 1) * Math.abs(arrow.scaleX);
+				const gesture:SwipeGesture = event.target as SwipeGesture;
+				
+				arrow.scaleX = (gesture.offsetX < 0 && gesture.offsetY == 0 ? -1 : 1) * Math.abs(arrow.scaleX);
 				var angle:int = 0;//event.offsetX == 0 ? (event.offsetY > 0 ? 90 : -90) : Math.atan(event.offsetY / event.offsetX) * 180 / Math.PI;
-				if (event.offsetY != 0)
+				if (gesture.offsetY != 0)
 				{
-					angle = event.offsetY > 0 ? 90 : -90;
+					angle = gesture.offsetY > 0 ? 90 : -90;
 				}
 				arrow.rotation = angle;
 				TweenMax.fromTo(arrow, 2, {alpha: 1}, {alpha: 0, ease: Sine.easeIn});
@@ -85,17 +85,14 @@
 			
 			private function onNativeGesture(event:TransformGestureEvent):void
 			{
-				onGesture(new SwipeGestureEvent(SwipeGestureEvent.GESTURE_SWIPE, false, false, GestureState.RECOGNIZED,
-					event.stageX, event.stageY, event.localX, event.localY, event.offsetX, event.offsetY));
+//				onGesture(new SwipeGestureEvent(SwipeGestureEvent.GESTURE_SWIPE, false, false, GestureState.RECOGNIZED,
+//					event.stageX, event.stageY, event.localX, event.localY, event.offsetX, event.offsetY));
 			}
 			
 			
-			private function onGestureStateChange(event:GestureStateEvent):void
+			private function onGestureStateChange(event:org.gestouch.events.GestureEvent):void
 			{
-				if (event.newState == GestureState.FAILED)
-				{
-					TweenMax.fromTo(failedGraphic, 1, {alpha: 1}, {alpha: 0, ease: Sine.easeIn});
-				}
+				TweenMax.fromTo(failedGraphic, 1, {alpha: 1}, {alpha: 0, ease: Sine.easeIn});
 			}
 			
 			

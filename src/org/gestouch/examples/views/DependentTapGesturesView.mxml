@@ -11,7 +11,7 @@
 		<![CDATA[
 			import com.greensock.TweenMax;
 
-			import org.gestouch.events.TapGestureEvent;
+			import org.gestouch.events.GestureEvent;
 			import org.gestouch.gestures.TapGesture;
 			
 			
@@ -24,10 +24,10 @@
 				super.onViewActivate();
 				
 				singleTapGesture = new TapGesture(button);
-				singleTapGesture.addEventListener(TapGestureEvent.GESTURE_TAP, onGesture);
+				singleTapGesture.addEventListener(org.gestouch.events.GestureEvent.GESTURE_RECOGNIZED, onGesture);
 				
 				doubleTapGesture = new TapGesture(button);
-				doubleTapGesture.addEventListener(TapGestureEvent.GESTURE_TAP, onGesture);
+				doubleTapGesture.addEventListener(org.gestouch.events.GestureEvent.GESTURE_RECOGNIZED, onGesture);
 				// probably you want to set a bit smaller value for maxTapDelay
 				// so double tap will fail a bit more quickly. default is 400ms
 				doubleTapGesture.maxTapDelay = 300;
@@ -43,20 +43,18 @@
 				
 				if (singleTapGesture)
 				{
-					singleTapGesture.removeEventListener(TapGestureEvent.GESTURE_TAP, onGesture);
 					singleTapGesture.dispose();
 					singleTapGesture = null;
 				}
 				if (doubleTapGesture)
 				{
-					doubleTapGesture.removeEventListener(TapGestureEvent.GESTURE_TAP, onGesture);
 					doubleTapGesture.dispose();
 					doubleTapGesture = null;
 				}
 			}
 			
 
-			private function onGesture(event:TapGestureEvent):void
+			private function onGesture(event:org.gestouch.events.GestureEvent):void
 			{
 				var tapGesture:TapGesture = event.target as TapGesture;
 				if (tapGesture == singleTapGesture)

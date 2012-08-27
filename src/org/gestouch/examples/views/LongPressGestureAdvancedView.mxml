@@ -14,8 +14,10 @@
 			import com.greensock.plugins.TweenPlugin;
 
 			import org.gestouch.core.GestureState;
-			import org.gestouch.events.LongPressGestureEvent;
+			import org.gestouch.events.GestureEvent;
+			import org.gestouch.gestures.Gesture;
 			import org.gestouch.gestures.LongPressGesture;
+
 			
 			
 			private var longPressGesture:LongPressGesture;
@@ -37,7 +39,7 @@
 				super.onViewActivate();
 				
 				longPressGesture = new LongPressGesture(image);
-				longPressGesture.addEventListener(LongPressGestureEvent.GESTURE_LONG_PRESS, onGesture);
+				longPressGesture.addEventListener(org.gestouch.events.GestureEvent.GESTURE_STATE_CHANGE, onGesture);
 			}
 			
 			
@@ -47,18 +49,18 @@
 				
 				if (longPressGesture)
 				{
-					longPressGesture.removeEventListener(LongPressGestureEvent.GESTURE_LONG_PRESS, onGesture);
 					longPressGesture.dispose();
 					longPressGesture = null;
 				}
 			}
 			
 			
-			private function onGesture(event:LongPressGestureEvent):void
+			private function onGesture(event:org.gestouch.events.GestureEvent):void
 			{
-				var loc:Point = globalToLocal(longPressGesture.location);
+				const gesture:Gesture = event.target as Gesture;
+				var loc:Point = globalToLocal(gesture.location);
 				
-				switch (event.gestureState)
+				switch (event.newState)
 				{
 					case GestureState.BEGAN:
 						initialTransform = image.transform.matrix;

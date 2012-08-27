@@ -10,23 +10,13 @@
 	<fx:Script>
 		<![CDATA[
 			import com.greensock.TweenMax;
-			import com.greensock.plugins.GlowFilterPlugin;
-			import com.greensock.plugins.TweenPlugin;
 
-			import org.gestouch.events.TapGestureEvent;
+			import org.gestouch.events.GestureEvent;
 			import org.gestouch.gestures.TapGesture;
 			
 			
 			private var doubleTapGesture:TapGesture;
 			private var twoFingerTapGesture:TapGesture;
-
-
-			override protected function init():void
-			{
-				super.init();
-				
-				TweenPlugin.activate([GlowFilterPlugin]);				
-			}
 			
 			
 			override protected function onViewActivate():void
@@ -35,11 +25,11 @@
 				
 				doubleTapGesture = new TapGesture(button);
 				doubleTapGesture.numTapsRequired = 2;
-				doubleTapGesture.addEventListener(TapGestureEvent.GESTURE_TAP, onGesture);
+				doubleTapGesture.addEventListener(org.gestouch.events.GestureEvent.GESTURE_RECOGNIZED, onGesture);
 				
 				twoFingerTapGesture = new TapGesture(button);
 				twoFingerTapGesture.numTouchesRequired = 2;
-				twoFingerTapGesture.addEventListener(TapGestureEvent.GESTURE_TAP, onGesture);
+				twoFingerTapGesture.addEventListener(org.gestouch.events.GestureEvent.GESTURE_RECOGNIZED, onGesture);
 			}
 			
 			
@@ -49,20 +39,18 @@
 				
 				if (doubleTapGesture)
 				{
-					doubleTapGesture.removeEventListener(TapGestureEvent.GESTURE_TAP, onGesture);
-					doubleTapGesture.dispose();
+					doubleTapGesture.dispose();// all event listeners automatically removed
 					doubleTapGesture = null;
 				}
 				if (twoFingerTapGesture)
 				{
-					twoFingerTapGesture.removeEventListener(TapGestureEvent.GESTURE_TAP, onGesture);
-					twoFingerTapGesture.dispose();
+					twoFingerTapGesture.dispose();// all event listeners automatically removed
 					twoFingerTapGesture = null;
 				}
 			}
 			
 
-			private function onGesture(event:TapGestureEvent):void
+			private function onGesture(event:org.gestouch.events.GestureEvent):void
 			{
 				var gesture:TapGesture = event.target as TapGesture;
 				var scale:Number;

@@ -1,21 +1,19 @@
 package org.gestouch.examples.starling
 {
-	import com.greensock.easing.Linear;
-	import com.greensock.TweenLite;
 	import starling.core.Starling;
 	import starling.display.DisplayObject;
 	import starling.display.Image;
 	import starling.display.Sprite;
 	import starling.textures.Texture;
 
+	import com.greensock.TweenLite;
 	import com.greensock.TweenMax;
+	import com.greensock.easing.Linear;
 
 	import org.gestouch.core.GestureState;
 	import org.gestouch.core.IGestureDelegate;
 	import org.gestouch.core.Touch;
-	import org.gestouch.events.LongPressGestureEvent;
-	import org.gestouch.events.TapGestureEvent;
-	import org.gestouch.events.TransformGestureEvent;
+	import org.gestouch.events.GestureEvent;
 	import org.gestouch.gestures.Gesture;
 	import org.gestouch.gestures.LongPressGesture;
 	import org.gestouch.gestures.TapGesture;
@@ -59,7 +57,7 @@ package org.gestouch.examples.starling
 			addChild(container);
 			
 			var freeTransform:TransformGesture = new TransformGesture(stage);
-			freeTransform.addEventListener(TransformGestureEvent.GESTURE_TRANSFORM, onTransform, false, 0, true);
+			freeTransform.addEventListener(GestureEvent.GESTURE_STATE_CHANGE, onTransform, false, 0, true);
 			freeTransform.delegate = this;
 			
 			var image:Image;
@@ -78,13 +76,15 @@ package org.gestouch.examples.starling
 			
 			// native stage still acts as the parent of everything
 			var longPress:LongPressGesture = new LongPressGesture(Starling.current.nativeStage);
-			longPress.addEventListener(LongPressGestureEvent.GESTURE_LONG_PRESS, onLongPress);
+			longPress.addEventListener(GestureEvent.GESTURE_STATE_CHANGE, onLongPress);
 		}
 
 
-		private function onLongPress(event:LongPressGestureEvent):void
+		private function onLongPress(event:GestureEvent):void
 		{
-			if (event.gestureState != GestureState.BEGAN)
+			const gesture:LongPressGesture = event.target as LongPressGesture;
+			
+			if (event.newState != GestureState.BEGAN)
 				return;
 			
 			const circle:Shape = new Shape();
@@ -93,8 +93,9 @@ package org.gestouch.examples.starling
 			g.drawCircle(0, 0, 100);
 			g.endFill();
 			Starling.current.nativeStage.addChild(circle);
-			circle.x = event.stageX;
-			circle.y = event.stageY;
+			const location:Point = gesture.location;
+			circle.x = location.x;
+			circle.y = location.y;
 			TweenLite.to(circle, 0.5, {
 				alpha: 0,
 				scaleX: 0,
@@ -112,68 +113,66 @@ package org.gestouch.examples.starling
 			image.width = image.height = Math.min(stage.stageWidth, stage.stageHeight) / 3;
 
 			var tap:TapGesture = new TapGesture(image);
-			tap.addEventListener(TapGestureEvent.GESTURE_TAP, onTap, false, 0, true);
+			tap.addEventListener(GestureEvent.GESTURE_RECOGNIZED, onTap, false, 0, true);
 
 			var freeTransform:TransformGesture = new TransformGesture(image);
-			freeTransform.addEventListener(TransformGestureEvent.GESTURE_TRANSFORM, onTransform, false, 0, true);
+			freeTransform.addEventListener(GestureEvent.GESTURE_STATE_CHANGE, onTransform, false, 0, true);
 			freeTransform.delegate = this;
 			
 			return image;
 		}
 		
 
-		private function onTransform(event:TransformGestureEvent):void
+		private function onTransform(event:GestureEvent):void
 		{
-			var target:DisplayObject = (event.target as Gesture).target as DisplayObject;
+			const gesture:TransformGesture = event.target as TransformGesture;
+			var target:DisplayObject = gesture.target as DisplayObject;
+			var offsetX:Number = gesture.offsetX;
+			var offsetY:Number = gesture.offsetY;
+			
 			if (target == stage)
 			{
 				target = container;
 				
-				if (event.gestureState == GestureState.BEGAN)
+				if (event.newState == GestureState.BEGAN)
 				{
 					containerIsTransforming = true;
 				}
-				else if (event.gestureState == GestureState.ENDED || event.gestureState == GestureState.CANCELLED)
+				else if (event.newState == GestureState.ENDED || event.newState == GestureState.CANCELLED)
 				{
 					containerIsTransforming = false;
 				}
 			}
 			else
 			{
-				if (event.gestureState == GestureState.BEGAN)
+				if (event.newState == GestureState.BEGAN)
 				{
 					innerActiveTransformGesturesCounter++;
 				}
-				else if (event.gestureState == GestureState.ENDED || event.gestureState == GestureState.CANCELLED)
+				else if (event.newState == GestureState.ENDED || event.newState == GestureState.CANCELLED)
 				{
 					innerActiveTransformGesturesCounter--;
 				}
 				
 				// Recalculate offsets in case some parent is transformed
-				if (event.offsetX != 0 || event.offsetY != 0)
-				{
-					var offset:Point = target.parent.globalToLocal(new Point(event.offsetX, event.offsetY)).subtract(target.parent.globalToLocal(GestureUtils.GLOBAL_ZERO));
-					event.offsetX = offset.x;
-					event.offsetY = offset.y;
-				}
+				var offset:Point = target.parent.globalToLocal(new Point(offsetX, offsetY)).subtract(target.parent.globalToLocal(GestureUtils.GLOBAL_ZERO));
+				offsetX = offset.x;
+				offsetY = offset.y;
 			}
 			
 			// Panning
-			target.x += event.offsetX;
-			target.y += event.offsetY;
+			target.x += offsetX;
+			target.y += offsetY;
 			
-			if (event.scaleX != 1 || event.rotation != 0)
+			if (gesture.scale != 1 || gesture.rotation != 0)
 			{
 				var m:Matrix = target.getTransformationMatrix(target.parent);
 				
 				// Scale and rotation.
-				// NB! event.localX and event.stageX actually represent previous
-				// location of the centroid (middle point between two fingers so you
-				// can easely perform these transformations without any additional transformations.
-				var transformPoint:Point = m.transformPoint(new Point(event.localX, event.localY));
+				var transformPoint:Point = m.transformPoint(target.globalToLocal(gesture.location));
 				m.translate(-transformPoint.x, -transformPoint.y);
-				m.rotate(event.rotation);
-				m.scale(event.scaleX, event.scaleY);
+				m.rotate(gesture.rotation);
+				m.scale(gesture.scale, gesture.scale);
 				m.translate(transformPoint.x, transformPoint.y);
 				
 				target.x = m.tx;
@@ -184,7 +183,7 @@ package org.gestouch.examples.starling
 		}
 
 
-		private function onTap(event:TapGestureEvent):void
+		private function onTap(event:GestureEvent):void
 		{
 			trace("tap");
 			TweenMax.to((event.target as Gesture).target, 0.5, {bezierThrough:[{alpha:0.1}, {alpha:1}]});

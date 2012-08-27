@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <views:ExampleViewBase xmlns:fx="http://ns.adobe.com/mxml/2009"
-    xmlns:s="library://ns.adobe.com/flex/spark"
+	xmlns:s="library://ns.adobe.com/flex/spark"
 	xmlns:mx="library://ns.adobe.com/flex/mx"
 	xmlns:views="org.gestouch.examples.views.*"
 	xmlns:controls="org.gestouch.examples.controls.*"
@@ -11,9 +11,9 @@
 	<fx:Script>
 		<![CDATA[
 			import com.greensock.TweenMax;
+
 			import org.gestouch.core.Touch;
-			import org.gestouch.events.PanGestureEvent;
-			import org.gestouch.events.SwipeGestureEvent;
+			import org.gestouch.events.GestureEvent;
 			import org.gestouch.gestures.Gesture;
 			import org.gestouch.gestures.PanGesture;
 			import org.gestouch.gestures.SwipeGesture;
@@ -56,7 +56,7 @@
 			//----------------------------------
 			
 			
-				
+			
 			override protected function init():void
 			{
 				super.init();
@@ -72,7 +72,7 @@
 				fillBitmapData.draw(bmd, new Matrix(10, 0, 0, 10));
 			}
 			
-				
+			
 			override protected function onResize(width:Number, height:Number):void
 			{
 				super.onResize(width, height);
@@ -87,11 +87,12 @@
 				super.onViewActivate();
 				
 				pan = new PanGesture(this);
-				pan.addEventListener(PanGestureEvent.GESTURE_PAN, onPan);
+				pan.addEventListener(org.gestouch.events.GestureEvent.GESTURE_BEGAN, onPan);
+				pan.addEventListener(org.gestouch.events.GestureEvent.GESTURE_CHANGED, onPan);
 				pan.slop = 0;
 				
 				swipe = new SwipeGesture(this);
-				swipe.addEventListener(SwipeGestureEvent.GESTURE_SWIPE, onSwipe);
+				swipe.addEventListener(org.gestouch.events.GestureEvent.GESTURE_RECOGNIZED, onSwipe);
 				swipe.direction = SwipeGestureDirection.RIGHT;
 				swipe.delegate = this;
 				
@@ -105,13 +106,11 @@
 				
 				if (pan)
 				{
-					pan.removeEventListener(PanGestureEvent.GESTURE_PAN, onPan);
 					pan.dispose();
 					pan = null;
 				}
 				if (swipe)
 				{
-					swipe.removeEventListener(SwipeGestureEvent.GESTURE_SWIPE, onSwipe);
 					swipe.dispose();
 					swipe = null;
 				}
@@ -128,15 +127,15 @@
 			}
 			
 
-			private function onPan(event:PanGestureEvent):void
+			private function onPan(event:org.gestouch.events.GestureEvent):void
 			{
-				trace("pan", event.gestureState);
-				fillOffsetMatrix.translate(event.offsetX, event.offsetY);
+				trace("pan");
+				fillOffsetMatrix.translate(pan.offsetX, pan.offsetY);
 				updateFill();
 			}
 			
 			
-			private function onSwipe(event:SwipeGestureEvent):void
+			private function onSwipe(event:org.gestouch.events.GestureEvent):void
 			{
 				trace("swipe");
 				TweenMax.to(menu, 1, {bezierThrough:[{scaleX:2}, {scaleX:1}]}); 

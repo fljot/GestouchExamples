@@ -11,8 +11,7 @@
 	
 	<fx:Script>
 		<![CDATA[
-			import org.gestouch.core.GestureState;
-			import org.gestouch.events.TransformGestureEvent;
+			import org.gestouch.events.GestureEvent;
 			import org.gestouch.gestures.TransformGesture;
 			
 			
@@ -24,7 +23,8 @@
 				super.onViewActivate();
 				
 				transformGesture = new TransformGesture(image);
-				transformGesture.addEventListener(org.gestouch.events.TransformGestureEvent.GESTURE_TRANSFORM, onGesture);
+				transformGesture.addEventListener(org.gestouch.events.GestureEvent.GESTURE_BEGAN, onGesture);
+				transformGesture.addEventListener(org.gestouch.events.GestureEvent.GESTURE_CHANGED, onGesture);
 			}
 			
 			
@@ -34,34 +34,29 @@
 				
 				if (transformGesture)
 				{
-					transformGesture.removeEventListener(org.gestouch.events.TransformGestureEvent.GESTURE_TRANSFORM, onGesture);
 					transformGesture.dispose();
 					transformGesture = null;
 				}
 			}
 			
 			
-			private function onGesture(event:org.gestouch.events.TransformGestureEvent):void
+			private function onGesture(event:org.gestouch.events.GestureEvent):void
 			{
-				if (event.gestureState == GestureState.BEGAN || event.gestureState == GestureState.CHANGED)
+				const gesture:TransformGesture = event.target as TransformGesture;
+				var matrix:Matrix = image.transform.matrix;
+				
+				// Panning
+				matrix.translate(gesture.offsetX, gesture.offsetY);
+				image.transform.matrix = matrix;
+				
+				if (gesture.scale != 1 || gesture.rotation != 0)
 				{
-					var matrix:Matrix = image.transform.matrix;
-					
-					// Panning
-					matrix.translate(event.offsetX, event.offsetY);
-					
-					if (event.scaleX != 1 || event.rotation != 0)
-					{
-						// Scale and rotation.
-						// NB! event.localX and event.stageX actually represent previous
-						// location of the centroid (middle point between two fingers so you
-						// can easely perform these transformations without any additional transformations.
-						var transformPoint:Point = matrix.transformPoint(new Point(event.localX, event.localY));
-						matrix.translate(-transformPoint.x, -transformPoint.y);
-						matrix.rotate(event.rotation);
-						matrix.scale(event.scaleX, event.scaleY);
-						matrix.translate(transformPoint.x, transformPoint.y);
-					}
+					// Scale and rotation.
+					var transformPoint:Point = matrix.transformPoint(image.globalToLocal(gesture.location));
+					matrix.translate(-transformPoint.x, -transformPoint.y);
+					matrix.rotate(gesture.rotation);
+					matrix.scale(gesture.scale, gesture.scale);
+					matrix.translate(transformPoint.x, transformPoint.y);
 					
 					image.transform.matrix = matrix;
 				}
